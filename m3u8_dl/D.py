@@ -43,7 +43,7 @@ class D():
             resp = requests.request("GET", url, headers=self.headers, stream=True, proxies=self.proxies, allow_redirects=True)
             # if 300>resp.status_code >= 200:
             if resp.status_code>=200:
-                logger.debug(f"stauts_code:{resp.status_code},destfile:{destFile}")
+                # logger.debug(f"stauts_code:{resp.status_code},destfile:{destFile}")
 
                 with open(destFile+".tmp", "ab") as f:
                     block_size = 1024

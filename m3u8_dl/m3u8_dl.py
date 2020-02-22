@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 from Crypto.Cipher import AES
 import sys
 
-proxies={"https":"socks5h://127.0.0.1:5992","http":"socks5h://127.0.0.1:5992"}
+proxies={"https":"socks5h://127.0.0.1:5993","http":"socks5h://127.0.0.1:5993"}
 headers = {
     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36' ,
 }
@@ -104,10 +104,10 @@ class m3u8_dl(object):
             d = D(proxies=proxies,headers=headers)
             ret = d.download(url,join(dirname(self.out_path),str(i)))
             if ret:
-                logger.info(f'{i} done')
+                # logger.info(f'{i} done')
                 self.done_set.add(i)
             else:
-                logger.error(f'{i} downlaod fails! reput to thread')
+                logger.error(f'{i} download fails! re Q')
                 self.downloadQ.put((url,i))
 
         except Exception as e :
@@ -126,7 +126,7 @@ class m3u8_dl(object):
     def run(self):
         if self.ts_list_pair:
 
-            for i in range(3):
+            for i in range(30):
                 t = threading.Thread(target=self.target)
                 self.threads.append(t)
 
@@ -168,8 +168,8 @@ class m3u8_dl(object):
                         outfile.flush()
                     else:
                         time.sleep(1)
-                        logger.debug(f'waiting for {self.next_merged_id} to merge ')
-                        logger.debug(f'unmerged {self.done_set}')
+                        # logger.debug(f'waiting for {self.next_merged_id} to merge ')
+                        # logger.debug(f'unmerged {self.done_set}')
                 except Exception as e :
                     logger.exception(e)
                     self.next_merged_id=oldidx
