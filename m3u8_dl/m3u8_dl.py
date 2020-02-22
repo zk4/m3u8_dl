@@ -144,6 +144,7 @@ class m3u8_dl(object):
                     outfile.flush()
                 else:
                     time.sleep(1)
+                    logger.debug(f'waiting for {self.next_merged_id} to merge ')
             if outfile:
                 outfile.close()
         except Exception as e :

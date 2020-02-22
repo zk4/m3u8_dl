@@ -67,7 +67,7 @@ root:
     propagate: no
 
 loggers:
-    m3u8:
+    m3u8_dl:
         level: DEBUG
         handlers: [console, info_file_handler, error_file_handler, critical_file_handler, debug_file_handler, warn_file_handler]
         propagate: no
