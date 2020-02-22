@@ -13,6 +13,7 @@ import queue
 import requests
 import subprocess
 import threading
+import m3u8
 import time
 from Crypto.Cipher import AES
 import sys
@@ -44,7 +45,6 @@ class m3u8_dl(object):
         self.next_merged_id = 0
         self.outdir         = dirname(out_path)
         self.done_set       = set()
-        self.recyled        = set()
         self.downloadQ      = queue.Queue()
 
         if self.outdir and not os.path.isdir(self.outdir):
@@ -64,7 +64,7 @@ class m3u8_dl(object):
         if self.cryptor:
             return self.cryptor.decrypt(content)
         else:
-            return context
+            return content
 
     def readkey(self):
         tag_list = [n.strip() for n in self.m3u8_content.split('\n') if n and n.startswith("#")]
@@ -79,6 +79,10 @@ class m3u8_dl(object):
                 method,uri = method.split('=')[1],uri.split('=')[1][1:-1]
                 
                 logger.debug(f'request uri: {uri}')
+
+
+                uri = urljoin(self.url,uri)
+
                 r = self.session.get(uri,proxies=proxies)
                 return  r.content
 
@@ -94,12 +98,14 @@ class m3u8_dl(object):
         logger.debug(f"m3u8_url {m3u8_url}")
         if m3u8_url.startswith("http"):
             r = self.session.get(m3u8_url, timeout=10,headers=headers,proxies=proxies)
+            if ":path" in r.headers:
+                print(r.headers[":path"])
             if r.ok:
-                return r.content
+                return r.text
         else:
             return Path(m3u8_url).read_text()
 
-        return None
+        raise Exception("read m3u8 content error.")
 
     def download(self,url,i):
         try:
@@ -129,20 +135,14 @@ class m3u8_dl(object):
         if self.ts_list_pair:
 
             for i in range(5):
-                t = threading.Thread(target=self.target)
-                self.threads.append(t)
+                threading.Thread(target=self.target).start()
 
-            t=threading.Thread(target=self.try_merge)
-            self.threads.append(t)
+            threading.Thread(target=self.try_merge).start()
+
 
             for pair in self.ts_list_pair:
                 self.downloadQ.put((pair[0],pair[1]))
 
-            for tt in self.threads:
-                tt.start()
-
-            # for tt in self.threads:
-            #     tt.join()
 
     def try_merge(self):
             outfile  = None
