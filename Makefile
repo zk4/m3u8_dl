@@ -37,7 +37,7 @@ uninstall:
 
 run:
 	# m3u8_dl "./index-v1-a1.m3u8"
-	python3 -m m3u8_dl "./index-v1-a1.m3u8"
+	python3 -m m3u8_dl "./index-v1-a1.m3u8" "./b/a.mp4"
 	
 
 all: rm uninstall install run 

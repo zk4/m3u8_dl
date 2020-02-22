@@ -7,6 +7,7 @@ import subprocess
 from urllib.parse import urljoin
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from os.path import join,basename,dirname
 from .logx import setup_logging
 from .D  import D
 
@@ -27,12 +28,24 @@ headers = {
 
 class m3u8_dl(object):
 
-    def __init__(self,url):
+    def __init__(self,url,out_path):
         pool_size = 10
         self.url =url
-        self.session = self._get_http_session(pool_size, pool_size, 5)
+        self.out_path = out_path
+        self.session = self._get_http_session(pool_size, pool_size, 5) 
         self.m3u8_content = self.m3u8content(url)
         self.ts_list = [urljoin(url, n.strip()) for n in self.m3u8_content.split('\n') if n and not n.startswith("#")]
+        self.length = len(self.ts_list)
+        self.ts_list = zip(self.ts_list, [n for n in range(len(self.ts_list))])
+        self.next_merged_id = 0
+        self.outdir = dirname(out_path)
+
+        if self.outdir and not os.path.isdir(self.outdir):
+            os.makedirs(self.outdir)
+
+        if self.out_path and os.path.isfile(self.out_path):
+            os.remove(self.out_path)
+        
         key = self.readkey()
 
         self.cryptor = None
@@ -40,8 +53,8 @@ class m3u8_dl(object):
             self.cryptor = AES.new(key, AES.MODE_CBC, key)
 
 
-    def decode(self, content,outfileHandler):
-        outfileHandler.write(self.cryptor.decrypt(content))
+    def decode(self, content):
+        return self.cryptor.decrypt(content)
 
     def readkey(self):
         tag_list = [n.strip() for n in self.m3u8_content.split('\n') if n and n.startswith("#")]
@@ -80,13 +93,13 @@ class m3u8_dl(object):
 
     def download(self,url,i):
         try:
-            # logger.debug(f"{i}->{url}")
             d = D(proxies=proxies,headers=headers)
-            d.download(url,"./a/"+str( i ))
-            # process = subprocess.Popen(["proxychains4", "axel",  url ])  
-            # process.wait()
+            d.download(url,join(dirname(self.out_path),str(i)))
+            self.try_merge(i)
         except Exception as e :
             logger.exception(e)
+
+
 
     
 
@@ -94,45 +107,40 @@ class m3u8_dl(object):
         if self.ts_list:
             with ThreadPoolExecutor(max_workers=50) as executor:
                 index = 1
-                for url in self.ts_list:
-                    e = executor.submit(self.download,url,index)
+                for pair in self.ts_list:
+                    e = executor.submit(self.download,pair[0],pair[1])
                     index +=1
+                    
 
+    def try_merge(self,i):
+        try:
+            while self.next_merged_id < self.length and self.next_merged_id==i:
+                self.next_merged_id += 1
+                logger.debug(f'{self.next_merged_id} merged')
+                output = dirname(self.out_path)
+                p = os.path.join(output, str(self.next_merged_id))
+                logger.debug(f'--------------------{p}')
+                infile = open(p, 'rb')
 
+                outfile  = ""
+                if not outfile:
+                    outfile = open(self.out_path, 'ab')
 
-def merge(url):
-    try:
-        m = m3u8_dl(url)
-        # key = m .readkey()
-        # cryptor = AES.new(key, AES.MODE_CBC, key)
+                o  = self.decode(infile.read())
+                outfile.write(o)
 
-        index = 1
-        outfile = ''
-        while index < 338:
-            logger.debug(f'{index} merged')
-            output = "./a"
-            infile = open(os.path.join(output, str(index)), 'rb')
-            if not outfile:
-                outfile = open(os.path.join(output,"all.mp4"), 'wb')
-            m.decode(infile.read(),outfile)
-            # outfile.write(infile.read())
-            infile.close()
-            # os.remove(os.path.join(self.dir, file_name))
-            index += 1
-        if outfile:
-            outfile.close()
-    except Exception as e :
-        print(e)
+                infile.close()
+                if outfile:
+                    outfile.close()
+        except Exception as e :
+            logger.exception(e)
 
 
 
 def main(args):
-    # logger.debug(args.url)
-    # m = m3u8_dl(args.url)
-    # m.readkey()
-    # m.run()
-    # merge()
-    merge(args.url)
+    logger.debug(args.url)
+    m = m3u8_dl(args.url,args.out_path)
+    m.run()
 
 def entry_point():
     parser = createParse()
@@ -143,5 +151,6 @@ def entry_point():
 def createParse():
     parser = argparse.ArgumentParser( formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="")
     parser.add_argument("url",  help="url" )
+    parser.add_argument("out_path",  help="out path" )
 
     return parser

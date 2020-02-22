@@ -63,9 +63,7 @@ class D():
                     if wrote != webSize:
                         logger.debug(f"ERROR, something went wrong wroteSize{wrote} != webSize{webSize}")
             else:
-                logger.debug(f"stauts_code:{resp.status_code},url:{resp.url}")
-                raise Exception("status_code is not 200.")
-        except Exception as e:
+                logger.debug(f"stauts_code:{resp.status_code},url:{resp.url}") raise Exception("status_code is not 200.") except Exception as e:
             if self.current_retry_times<self.retry_times:
                 self.current_retry_times+=1
                 self.download(url,destFile,isAppend)
@@ -83,14 +81,3 @@ class D():
             return file_size
         else:
             raise Exception(f"网络错误码:{rr.status_code} \n{rr.text}")
-
-
-
-
-if __name__ == '__main__':
-    proxy = '127.0.0.1:5993'
-    proxies = { 'http': 'socks5h://' + proxy, 'https': 'socks5h://' + proxy, }
-
-    d=D()
-    size=D().getWebFileSize('http://cd14-ccd1-1.play.bokecc.com/flvs/47AD04E43728D51F/2017-11-18/73F5D9142E2C93709C33DC5901307461-20.m3u8?t=1530889974&key=E9DC3276915722D345FFF898936149FE')
-    print(size)
