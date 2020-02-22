@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 from Crypto.Cipher import AES
 import sys
 
-proxies={"https":"socks5h://127.0.0.1:5993","http":"socks5h://127.0.0.1:5993"}
+proxies={"https":"socks5h://127.0.0.1:5992","http":"socks5h://127.0.0.1:5992"}
 headers = {
     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36' ,
 }
@@ -62,7 +62,10 @@ class m3u8_dl(object):
 
 
     def decode(self, content):
-        return self.cryptor.decrypt(content)
+        if self.cryptor:
+            return self.cryptor.decrypt(content)
+        else:
+            return context
 
     def readkey(self):
         tag_list = [n.strip() for n in self.m3u8_content.split('\n') if n and n.startswith("#")]
@@ -126,7 +129,7 @@ class m3u8_dl(object):
     def run(self):
         if self.ts_list_pair:
 
-            for i in range(30):
+            for i in range(5):
                 t = threading.Thread(target=self.target)
                 self.threads.append(t)
 
@@ -166,16 +169,17 @@ class m3u8_dl(object):
 
                         logger.debug(f'{self.next_merged_id}/{self.length} merged')
                         outfile.flush()
+                        os.remove(join(self.outdir,str(oldidx)))
                     else:
                         time.sleep(1)
                         # logger.debug(f'waiting for {self.next_merged_id} to merge ')
                         # logger.debug(f'unmerged {self.done_set}')
                 except Exception as e :
-                    logger.exception(e)
+                    # logger.exception(e)
                     self.next_merged_id=oldidx
                     os.remove(join(self.outdir,str(oldidx)))
                     logger.error(f'{oldidx} merge error ,reput to thread')
-                    print(self.ts_list[oldidx],oldidx)
+                    # print(self.ts_list[oldidx],oldidx)
                     self.downloadQ.put((self.ts_list[oldidx],oldidx))
             if outfile:
                 outfile.close()
