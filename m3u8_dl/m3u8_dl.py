@@ -1,27 +1,26 @@
 #coding: utf-8
+
+from .D  import D
+from .logx import setup_logging
+from concurrent.futures import ThreadPoolExecutor
+from os.path import join,basename,dirname
+from pathlib import Path
+from urllib.parse import urljoin
+import argparse
 import logging
 import os
-import argparse
 import queue
-import threading
-
 import requests
 import subprocess
-from urllib.parse import urljoin
-from concurrent.futures import ThreadPoolExecutor
-from pathlib import Path
+import threading
 import time
-from os.path import join,basename,dirname
-from .logx import setup_logging
-from .D  import D
+from Crypto.Cipher import AES
+import sys
 
 # don`t remove this line 
 setup_logging()
 
 logger = logging.getLogger(__name__)
-
-from Crypto.Cipher import AES
-import sys
 
 proxies={"https":"socks5h://127.0.0.1:5992","http":"socks5h://127.0.0.1:5992"}
 headers = {
@@ -33,20 +32,20 @@ headers = {
 class m3u8_dl(object):
 
     def __init__(self,url,out_path):
-        self.threads = []
-        pool_size = 100
-        self.url =url
-        self.out_path = out_path
-        self.session = self._get_http_session(pool_size, pool_size, 5) 
-        self.m3u8_content = self.m3u8content(url)
-        self.ts_list = [urljoin(url, n.strip()) for n in self.m3u8_content.split('\n') if n and not n.startswith("#")]
-        self.length = len(self.ts_list)
-        self.ts_list_pair = zip(self.ts_list, [n for n in range(len(self.ts_list))])
+        self.threads        = []
+        pool_size           = 100
+        self.url            = url
+        self.out_path       = out_path
+        self.session        = self._get_http_session(pool_size, pool_size, 5)
+        self.m3u8_content   = self.m3u8content(url)
+        self.ts_list        = [urljoin(url, n.strip()) for n in self.m3u8_content.split('\n') if n and not n.startswith("#")]
+        self.length         = len(self.ts_list)
+        self.ts_list_pair   = zip(self.ts_list, [n for n in range(len(self.ts_list))])
         self.next_merged_id = 0
-        self.outdir = dirname(out_path)
-        self.done_set =set()
-        self.recyled =set()
-        self.downloadQ   = queue.Queue()
+        self.outdir         = dirname(out_path)
+        self.done_set       = set()
+        self.recyled        = set()
+        self.downloadQ      = queue.Queue()
 
         if self.outdir and not os.path.isdir(self.outdir):
             os.makedirs(self.outdir)
