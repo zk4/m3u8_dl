@@ -10,16 +10,16 @@ logger = logging.getLogger(__name__)
 
 class D():
 
-    def __init__(self, cookie=None, proxies=None,headers=None,ignore_local=False,retry_times=9999999999) -> None:
+    def __init__(self, cookie=None, proxies=None,headers=None,retry_times=999999) -> None:
         self.cookie = cookie
         self.proxies = proxies
         self.headers=headers
-        self.ignore_local =ignore_local
         self.retry_times = retry_times
         self.current_retry_times = 0
         super().__init__()
 
     def download(self, url, destFile, isAppend=True):
+        logger.debug(f'download: {url}')
         try:
             localSize = 0
             webSize = self.getWebFileSize(url)
@@ -27,16 +27,15 @@ class D():
                 logger.debug("something went wrong, webSize is 0")
                 return
             try:
-                if not self.ignore_local:
-                    localSize = os.stat(destFile).st_size
-                    if localSize == webSize:
-                        logger.debug(f"{destFile} local exist! file size is the same:{webSize}")
-                        return
-                    else:
-                        logger.debug(f"{destFile} file size isn`t in consistence,localSize:{localSize}   webSize:{webSize}")
+                localSize = os.stat(destFile).st_size
+                if localSize == webSize:
+                    logger.debug(f"{destFile} local exist! file size is the same:{webSize}")
+                    return
+                else:
+                    logger.debug(f"{destFile} file size isn`t in consistence,localSize:{localSize}   webSize:{webSize} redownload..")
 
             except FileNotFoundError as e:
-                pass
+                logger.exception(e)
 
 
             if self.cookie:
@@ -62,14 +61,16 @@ class D():
                             f.write(data)
                     if wrote != webSize:
                         logger.debug(f"ERROR, something went wrong wroteSize{wrote} != webSize{webSize}")
+                    else:
+                        return
             else:
-                logger.debug(f"stauts_code:{resp.status_code},url:{resp.url}") raise Exception("status_code is not 200.") except Exception as e:
-            if self.current_retry_times<self.retry_times:
-                self.current_retry_times+=1
-                self.download(url,destFile,isAppend)
-            else:
+                logger.debug(f"stauts_code:{resp.status_code},url:{resp.url}") 
+        except Exception as e:
                 logger.exception(e)
 
+        if self.current_retry_times<self.retry_times:
+            self.current_retry_times+=1
+            self.download(url,destFile,isAppend)
 
 
     def getWebFileSize(self, url):

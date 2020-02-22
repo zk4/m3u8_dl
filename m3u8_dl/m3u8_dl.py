@@ -7,6 +7,7 @@ import subprocess
 from urllib.parse import urljoin
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+import time
 from os.path import join,basename,dirname
 from .logx import setup_logging
 from .D  import D
@@ -39,6 +40,7 @@ class m3u8_dl(object):
         self.ts_list = zip(self.ts_list, [n for n in range(len(self.ts_list))])
         self.next_merged_id = 0
         self.outdir = dirname(out_path)
+        self.done_set =set()
 
         if self.outdir and not os.path.isdir(self.outdir):
             os.makedirs(self.outdir)
@@ -94,44 +96,56 @@ class m3u8_dl(object):
     def download(self,url,i):
         try:
             d = D(proxies=proxies,headers=headers)
+            logger.debug(f'start..{i}')
             d.download(url,join(dirname(self.out_path),str(i)))
-            self.try_merge(i)
+            self.done_set.add(i)
+            logger.debug(f'done..{i}')
         except Exception as e :
             logger.exception(e)
-
-
 
     
 
     def run(self):
         if self.ts_list:
-            with ThreadPoolExecutor(max_workers=50) as executor:
-                index = 1
-                for pair in self.ts_list:
-                    e = executor.submit(self.download,pair[0],pair[1])
-                    index +=1
+
+            d = ThreadPoolExecutor(max_workers=6)
+            logger.debug(f'staring download threads..')
+            for pair in self.ts_list:
+                d.submit(self.download,pair[0],pair[1])
+
+            e =  ThreadPoolExecutor(max_workers=1)
+            logger.debug(f'staring merge thread..')
+            e.submit(self.try_merge)
+            
+
+            e.shutdown()
+            d.shutdown()
+
                     
 
-    def try_merge(self,i):
+    def try_merge(self):
         try:
-            while self.next_merged_id < self.length and self.next_merged_id==i:
-                self.next_merged_id += 1
-                logger.debug(f'{self.next_merged_id} merged')
-                output = dirname(self.out_path)
-                p = os.path.join(output, str(self.next_merged_id))
-                logger.debug(f'--------------------{p}')
-                infile = open(p, 'rb')
+            outfile  = None
+            if not outfile:
+                outfile = open(self.out_path, 'ab')
+            while self.next_merged_id < self.length:
+                if self.next_merged_id in self.done_set:
+                    self.done_set.remove(self.next_merged_id)
+                    logger.debug(f'{self.next_merged_id} merged')
+                    output = dirname(self.out_path)
+                    p = os.path.join(output, str(self.next_merged_id))
 
-                outfile  = ""
-                if not outfile:
-                    outfile = open(self.out_path, 'ab')
+                    with open(p, 'rb') as infile:
+                        o  = self.decode(infile.read())
+                        infile.close()
+                        outfile.write(o)
 
-                o  = self.decode(infile.read())
-                outfile.write(o)
-
-                infile.close()
-                if outfile:
-                    outfile.close()
+                    self.next_merged_id += 1
+                    outfile.flush()
+                else:
+                    time.sleep(1)
+            if outfile:
+                outfile.close()
         except Exception as e :
             logger.exception(e)
 
