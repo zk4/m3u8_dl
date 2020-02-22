@@ -23,7 +23,7 @@ setup_logging()
 
 logger = logging.getLogger(__name__)
 
-proxies={"https":"socks5h://127.0.0.1:5992","http":"socks5h://127.0.0.1:5992"}
+# proxies={"https":"socks5h://127.0.0.1:5992","http":"socks5h://127.0.0.1:5992"}
 headers = {
     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36' ,
 }
@@ -32,7 +32,7 @@ headers = {
 
 class m3u8_dl(object):
 
-    def __init__(self,url,out_path):
+    def __init__(self,url,out_path,proxy):
         self.threads        = []
         pool_size           = 100
         self.url            = url
@@ -46,6 +46,7 @@ class m3u8_dl(object):
         self.outdir         = dirname(out_path)
         self.done_set       = set()
         self.downloadQ      = queue.Queue()
+        self.proxies        = {"https":proxy,"http":proxy}
 
         if self.outdir and not os.path.isdir(self.outdir):
             os.makedirs(self.outdir)
@@ -83,7 +84,7 @@ class m3u8_dl(object):
 
                 uri = urljoin(self.url,uri)
 
-                r = self.session.get(uri,proxies=proxies)
+                r = self.session.get(uri,proxies=self.proxies)
                 return  r.content
 
     def _get_http_session(self, pool_connections, pool_maxsize, max_retries):
@@ -97,7 +98,7 @@ class m3u8_dl(object):
     def m3u8content(self,m3u8_url):
         logger.debug(f"m3u8_url {m3u8_url}")
         if m3u8_url.startswith("http"):
-            r = self.session.get(m3u8_url, timeout=10,headers=headers,proxies=proxies)
+            r = self.session.get(m3u8_url, timeout=10,headers=headers,proxies=self.proxies)
             if ":path" in r.headers:
                 print(r.headers[":path"])
             if r.ok:
@@ -109,7 +110,7 @@ class m3u8_dl(object):
 
     def download(self,url,i):
         try:
-            d = D(proxies=proxies,headers=headers)
+            d = D(proxies=self.proxies,headers=headers)
             ret = d.download(url,join(dirname(self.out_path),str(i)))
             if ret:
                 # logger.info(f'{i} done')
@@ -184,8 +185,8 @@ class m3u8_dl(object):
                 outfile.close()
 
 def main(args):
-    logger.debug(args.url)
-    m = m3u8_dl(args.url,args.out_path)
+    logger.debug(args.proxy)
+    m = m3u8_dl(args.url,args.out_path,args.proxy)
     m.run()
 
 def entry_point():
@@ -198,5 +199,7 @@ def createParse():
     parser = argparse.ArgumentParser( formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="")
     parser.add_argument("url",  help="url" )
     parser.add_argument("out_path",  help="out path" )
+    parser.add_argument('-p', '--proxy',type=str,  help="proxy" ,default="socks5h://127.0.0.1:5992")
+    # parser.add_argument('-h', '--headers',type=str,  help="headers" default="")
 
     return parser
