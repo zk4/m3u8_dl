@@ -2,6 +2,9 @@
 import logging
 import os
 import argparse
+import queue
+import threading
+
 import requests
 import subprocess
 from urllib.parse import urljoin
@@ -20,7 +23,7 @@ logger = logging.getLogger(__name__)
 from Crypto.Cipher import AES
 import sys
 
-proxies={"https":"socks5h://127.0.0.1:5993","http":"socks5h://127.0.0.1:5993"}
+proxies={"https":"socks5h://127.0.0.1:5992","http":"socks5h://127.0.0.1:5992"}
 headers = {
     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36' ,
 }
@@ -30,6 +33,7 @@ headers = {
 class m3u8_dl(object):
 
     def __init__(self,url,out_path):
+        self.threads = []
         pool_size = 100
         self.url =url
         self.out_path = out_path
@@ -37,10 +41,12 @@ class m3u8_dl(object):
         self.m3u8_content = self.m3u8content(url)
         self.ts_list = [urljoin(url, n.strip()) for n in self.m3u8_content.split('\n') if n and not n.startswith("#")]
         self.length = len(self.ts_list)
-        self.ts_list = zip(self.ts_list, [n for n in range(len(self.ts_list))])
+        self.ts_list_pair = zip(self.ts_list, [n for n in range(len(self.ts_list))])
         self.next_merged_id = 0
         self.outdir = dirname(out_path)
         self.done_set =set()
+        self.recyled =set()
+        self.downloadQ   = queue.Queue()
 
         if self.outdir and not os.path.isdir(self.outdir):
             os.makedirs(self.outdir)
@@ -93,7 +99,7 @@ class m3u8_dl(object):
 
         return None
 
-    def download(self,url,i,e):
+    def download(self,url,i):
         try:
             d = D(proxies=proxies,headers=headers)
             ret = d.download(url,join(dirname(self.out_path),str(i)))
@@ -102,53 +108,63 @@ class m3u8_dl(object):
                 self.done_set.add(i)
             else:
                 logger.error(f'{i} downlaod fails! reput to thread')
-                e.submit(self.download,url,i,e)
+                self.downloadQ.put((url,i))
 
         except Exception as e :
             logger.exception(e)
 
-    
+    def target(self):
+        while self.next_merged_id < self.length:
+            try:
+                url,idx = self.downloadQ.get(timeout=3)
+                if url:
+                    self.download(url,idx)
+            except Exception as e:
+                # logger.exception(e)
+                pass
 
     def run(self):
-        if self.ts_list:
+        if self.ts_list_pair:
 
-            d = ThreadPoolExecutor(max_workers=1)
-            logger.debug(f'staring download threads..')
-            for pair in self.ts_list:
-                d.submit(self.download,pair[0],pair[1],d)
+            for i in range(3):
+                t = threading.Thread(target=self.target)
+                self.threads.append(t)
 
-            e =  ThreadPoolExecutor(max_workers=1)
-            logger.debug(f'staring merge thread..')
-            e.submit(self.try_merge,d)
-            
+            t=threading.Thread(target=self.try_merge)
+            self.threads.append(t)
 
-            while self.next_merged_id < self.length:
-                logger.debug(f'{self.next_merged_id}------{self.length}')
-                time.sleep(1)
-            
-                    
+            for pair in self.ts_list_pair:
+                self.downloadQ.put((pair[0],pair[1]))
 
-    def try_merge(self,e):
+            for tt in self.threads:
+                tt.start()
+
+            # for tt in self.threads:
+            #     tt.join()
+
+    def try_merge(self):
             outfile  = None
             if not outfile:
                 outfile = open(self.out_path, 'ab')
 
             while self.next_merged_id < self.length:
-                logger.debug(f'try_merge live')
+
                 oldidx = self.next_merged_id
                 try:
                     if self.next_merged_id in self.done_set:
                         self.done_set.remove(self.next_merged_id)
-                        # logger.debug(f'{self.next_merged_id} merged')
                         output = dirname(self.out_path)
                         p = os.path.join(output, str(self.next_merged_id))
 
-                        with open(p, 'rb') as infile:
-                            o  = self.decode(infile.read())
-                            infile.close()
-                            outfile.write(o)
+                        infile= open(p, 'rb')
+                        o  = self.decode(infile.read())
+
+                        outfile.write(o)
+                        infile.close()
 
                         self.next_merged_id += 1
+
+                        logger.debug(f'{self.next_merged_id}/{self.length} merged')
                         outfile.flush()
                     else:
                         time.sleep(1)
@@ -157,17 +173,12 @@ class m3u8_dl(object):
                 except Exception as e :
                     logger.exception(e)
                     self.next_merged_id=oldidx
-                    os.remove(join(self.outdir,oldidx))
+                    os.remove(join(self.outdir,str(oldidx)))
                     logger.error(f'{oldidx} merge error ,reput to thread')
-                    e.submit(self.download,self.ts_list[oldidx],oldidx,e)
-
+                    print(self.ts_list[oldidx],oldidx)
+                    self.downloadQ.put((self.ts_list[oldidx],oldidx))
             if outfile:
                 outfile.close()
-
-            logger.error(f'try merge  done!!!!!!!!!!')
-
-
-
 
 def main(args):
     logger.debug(args.url)

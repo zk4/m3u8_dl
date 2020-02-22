@@ -1,6 +1,6 @@
 from .m3u8_dl import (entry_point,
                      main,
-                     createParse)
+                     createParse,m3u8_dl)
 
 
-__all__ = ['entry_point','createParse', 'main']
+__all__ = ['entry_point','createParse', 'main','m3u8_dl']
