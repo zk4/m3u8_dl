@@ -35,6 +35,7 @@ class m3u8_dl(object):
     def __init__(self,url,out_path,proxy):
         self.threads        = []
         pool_size           = 100
+        self.proxies        = {"https":proxy,"http":proxy}
         self.url            = url
         self.out_path       = out_path
         self.session        = self._get_http_session(pool_size, pool_size, 5)
@@ -46,7 +47,6 @@ class m3u8_dl(object):
         self.outdir         = dirname(out_path)
         self.done_set       = set()
         self.downloadQ      = queue.Queue()
-        self.proxies        = {"https":proxy,"http":proxy}
 
         if self.outdir and not os.path.isdir(self.outdir):
             os.makedirs(self.outdir)
@@ -132,10 +132,10 @@ class m3u8_dl(object):
                 # logger.exception(e)
                 pass
 
-    def run(self):
+    def run(self,threadcount):
         if self.ts_list_pair:
 
-            for i in range(5):
+            for i in range(threadcount):
                 threading.Thread(target=self.target).start()
 
             threading.Thread(target=self.try_merge).start()
@@ -147,10 +147,10 @@ class m3u8_dl(object):
 
     def try_merge(self):
             outfile  = None
-            if not outfile:
-                outfile = open(self.out_path, 'ab')
 
             while self.next_merged_id < self.length:
+                if not outfile:
+                    outfile = open(self.out_path, 'ab')
 
                 oldidx = self.next_merged_id
                 try:
@@ -181,13 +181,17 @@ class m3u8_dl(object):
                     logger.error(f'{oldidx} merge error ,reput to thread')
                     # print(self.ts_list[oldidx],oldidx)
                     self.downloadQ.put((self.ts_list[oldidx],oldidx))
-            if outfile:
-                outfile.close()
+                if outfile:
+                    outfile.flush()
+                    outfile.close()
 
 def main(args):
     logger.debug(args.proxy)
     m = m3u8_dl(args.url,args.out_path,args.proxy)
-    m.run()
+
+    # must ensure 1 for merged thread
+    threadcount = args.threadcount + 1
+    m.run(threadcount)
 
 def entry_point():
     parser = createParse()
@@ -200,6 +204,7 @@ def createParse():
     parser.add_argument("url",  help="url" )
     parser.add_argument("out_path",  help="out path" )
     parser.add_argument('-p', '--proxy',type=str,  help="proxy" ,default="socks5h://127.0.0.1:5992")
+    parser.add_argument('-t', '--threadcount',type=int,  help="thread count" ,default=1)
     # parser.add_argument('-h', '--headers',type=str,  help="headers" default="")
 
     return parser
