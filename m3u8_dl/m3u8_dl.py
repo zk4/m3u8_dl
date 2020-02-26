@@ -152,6 +152,7 @@ class m3u8_dl(object):
                 outfile = open(self.out_path, 'ab')
             while self.next_merged_id < self.length:
 
+                logger.debug(f'{self.next_merged_id}/{self.length} merged')
                 oldidx = self.next_merged_id
                 try:
                     if self.next_merged_id in self.read_to_merged:
@@ -167,13 +168,12 @@ class m3u8_dl(object):
 
                         self.next_merged_id += 1
 
-                        logger.info(f'{self.next_merged_id}/{self.length} merged')
                         outfile.flush()
                         os.remove(join(self.outdir,str(oldidx)))
                     else:
                         time.sleep(1)
                         # logger.debug(f'waiting for {self.next_merged_id} to merge ')
-                        logger.debug(f'unmerged {self.read_to_merged}')
+                        logger.debug(f'unmerged {self.read_to_merged} active_thread:{threading.active_count()}')
                 except Exception as e :
                     # logger.exception(e)
                     self.next_merged_id=oldidx
@@ -205,7 +205,7 @@ def createParse():
     parser.add_argument("url",  help="url" )
     parser.add_argument("out_path",  help="out path" )
     parser.add_argument('-p', '--proxy',type=str,  help="proxy" ,default="socks5h://127.0.0.1:5992")
-    parser.add_argument('-t', '--threadcount',type=int,  help="thread count" ,default=1)
+    parser.add_argument('-t', '--threadcount',type=int,  help="thread count" ,default=2)
     parser.add_argument('-d', '--debug', help='debug info', default=False, action='store_true') 
 
     # parser.add_argument('-h', '--headers',type=str,  help="headers" default="")
