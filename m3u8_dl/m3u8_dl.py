@@ -148,9 +148,9 @@ class m3u8_dl(object):
     def try_merge(self):
             outfile  = None
 
+            if not outfile:
+                outfile = open(self.out_path, 'ab')
             while self.next_merged_id < self.length:
-                if not outfile:
-                    outfile = open(self.out_path, 'ab')
 
                 oldidx = self.next_merged_id
                 try:
@@ -167,13 +167,13 @@ class m3u8_dl(object):
 
                         self.next_merged_id += 1
 
-                        logger.debug(f'{self.next_merged_id}/{self.length} merged')
+                        logger.info(f'{self.next_merged_id}/{self.length} merged')
                         outfile.flush()
                         os.remove(join(self.outdir,str(oldidx)))
                     else:
                         time.sleep(1)
                         # logger.debug(f'waiting for {self.next_merged_id} to merge ')
-                        # logger.debug(f'unmerged {self.done_set}')
+                        logger.debug(f'unmerged {self.done_set}')
                 except Exception as e :
                     # logger.exception(e)
                     self.next_merged_id=oldidx
@@ -181,11 +181,12 @@ class m3u8_dl(object):
                     logger.error(f'{oldidx} merge error ,reput to thread')
                     # print(self.ts_list[oldidx],oldidx)
                     self.downloadQ.put((self.ts_list[oldidx],oldidx))
-                if outfile:
-                    outfile.flush()
-                    outfile.close()
+            if outfile:
+                outfile.close()
 
 def main(args):
+    if args.debug:
+        logger.setLevel("DEBUG")
     logger.debug(args.proxy)
     m = m3u8_dl(args.url,args.out_path,args.proxy)
 
@@ -205,6 +206,8 @@ def createParse():
     parser.add_argument("out_path",  help="out path" )
     parser.add_argument('-p', '--proxy',type=str,  help="proxy" ,default="socks5h://127.0.0.1:5992")
     parser.add_argument('-t', '--threadcount',type=int,  help="thread count" ,default=1)
+    parser.add_argument('-d', '--debug', help='debug info', default=False, action='store_true') 
+
     # parser.add_argument('-h', '--headers',type=str,  help="headers" default="")
 
     return parser
