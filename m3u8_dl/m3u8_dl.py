@@ -45,7 +45,7 @@ class m3u8_dl(object):
         self.ts_list_pair   = zip(self.ts_list, [n for n in range(len(self.ts_list))])
         self.next_merged_id = 0
         self.outdir         = dirname(out_path)
-        self.done_set       = set()
+        self.read_to_merged       = set()
         self.downloadQ      = queue.Queue()
 
         if self.outdir and not os.path.isdir(self.outdir):
@@ -114,7 +114,7 @@ class m3u8_dl(object):
             ret = d.download(url,join(dirname(self.out_path),str(i)))
             if ret:
                 # logger.info(f'{i} done')
-                self.done_set.add(i)
+                self.read_to_merged.add(i)
             else:
                 logger.error(f'{i} download fails! re Q')
                 self.downloadQ.put((url,i))
@@ -154,8 +154,8 @@ class m3u8_dl(object):
 
                 oldidx = self.next_merged_id
                 try:
-                    if self.next_merged_id in self.done_set:
-                        self.done_set.remove(self.next_merged_id)
+                    if self.next_merged_id in self.read_to_merged:
+                        self.read_to_merged.remove(self.next_merged_id)
                         output = dirname(self.out_path)
                         p = os.path.join(output, str(self.next_merged_id))
 
@@ -173,7 +173,7 @@ class m3u8_dl(object):
                     else:
                         time.sleep(1)
                         # logger.debug(f'waiting for {self.next_merged_id} to merge ')
-                        logger.debug(f'unmerged {self.done_set}')
+                        logger.debug(f'unmerged {self.read_to_merged}')
                 except Exception as e :
                     # logger.exception(e)
                     self.next_merged_id=oldidx
