@@ -23,10 +23,10 @@ ex:
 m3_dl http://aaa.com/a.m3u8 -o ./a.mp4
 
 # pipe it to mpv
-m3_dl  https://you.tube-kuyun.com/20200210/1144_623a1fb3/index.m3u8 -w -s | mpv -
+m3_dl  https://you.tube-kuyun.com/20200210/1144_623a1fb3/index.m3u8 | mpv -
 
 # pipe it to mpv and save to local
-m3_dl  https://you.tube-kuyun.com/20200210/1144_623a1fb3/index.m3u8 -w -s | tee > ./a.mp4 | mpv -
+m3_dl  https://you.tube-kuyun.com/20200210/1144_623a1fb3/index.m3u8 | tee > ./a.mp4 | mpv -
 ```
 
 # Full Usage 

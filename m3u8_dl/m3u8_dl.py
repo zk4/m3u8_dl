@@ -33,8 +33,7 @@ headers = {
 
 class m3u8_dl(object):
 
-    def __init__(self,url,out_path,proxy,stream):
-        self.if_stream      = stream
+    def __init__(self,url,out_path,proxy):
         pool_size           = 10
         self.proxies        = {"https":proxy,"http":proxy}
         self.url            = url
@@ -50,7 +49,7 @@ class m3u8_dl(object):
         self.downloadQ      = queue.PriorityQueue()
         self.tempdir        = tempfile.gettempdir()
 
-        if not self.if_stream:
+        if self.out_path:
             outdir              = dirname(out_path)
             if outdir and not os.path.isdir(outdir):
                 os.makedirs(outdir)
@@ -157,9 +156,8 @@ class m3u8_dl(object):
     def try_merge(self):
             outfile  = None
 
-            if not self.if_stream:
-                if not outfile:
-                    outfile = open(self.out_path, 'ab')
+            if self.out_path:
+                outfile = open(self.out_path, 'ab')
             while self.next_merged_id < self.length:
 
                 logger.info(f'{self.next_merged_id}/{self.length} merged')
@@ -172,12 +170,13 @@ class m3u8_dl(object):
                         infile= open(p, 'rb')
                         o  = self.decode(infile.read())
                         
-                        if not self.if_stream:
+                        if  self.out_path:
                             outfile.write(o)
                             outfile.flush()
                         else:
                             sys.stdout.buffer.write(o)
                             sys.stdout.flush()
+
                         infile.close()
 
                         self.next_merged_id += 1
@@ -196,21 +195,20 @@ class m3u8_dl(object):
                     # print(self.ts_list[oldidx],oldidx)
                     self.downloadQ.put((self.ts_list[oldidx],oldidx))
 
-            if not self.if_stream:
-                if outfile:
-                    outfile.close()
+            if not self.out_path:
+                outfile.close()
 
 def main(args):
     if args.debug:
         logger.setLevel("DEBUG")
 
 
-    logger.debug(f'args.overwrite:{args.overwrite}')
-    if os.path.exists(args.out_path) and not args.overwrite:
+    logger.debug(f'args.out_path:{args.out_path}')
+    if args.out_path and os.path.exists(args.out_path) and not args.overwrite:
             logger.error(f'{args.out_path} exists! use -w if you want to overwrite it ')
             sys.exit(-1) 
 
-    m = m3u8_dl(args.url,args.out_path,args.proxy,args.stream)
+    m = m3u8_dl(args.url,args.out_path,args.proxy)
 
     # must ensure 1 for merged thread
     threadcount = args.threadcount + 1
@@ -225,7 +223,7 @@ def entry_point():
 def createParse():
     parser = argparse.ArgumentParser( formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="")
     parser.add_argument("url",  help="url" )
-    parser.add_argument('-o', '--out_path',type=str,  help="output path" ,default="./a.mp4")
+    parser.add_argument('-o', '--out_path',type=str,  help="output path" )
     parser.add_argument('-p', '--proxy',type=str,  help="proxy" ,default="socks5h://127.0.0.1:5992")
     parser.add_argument('-t', '--threadcount',type=int,  help="thread count" ,default=2)
     parser.add_argument('-d', '--debug', help='debug info', default=False, action='store_true') 
