@@ -14,7 +14,7 @@ handlers:
         class: logging.StreamHandler
         level: DEBUG
         formatter: standard
-        stream: ext://sys.stdout
+        stream: ext://sys.stderr
 
 root:
     level: INFO
