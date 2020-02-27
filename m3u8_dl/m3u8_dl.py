@@ -50,12 +50,13 @@ class m3u8_dl(object):
         self.downloadQ      = queue.PriorityQueue()
         self.tempdir        = tempfile.gettempdir()
 
-        outdir              = dirname(out_path)
-        if outdir and not os.path.isdir(outdir):
-            os.makedirs(outdir)
+        if not self.if_stream:
+            outdir              = dirname(out_path)
+            if outdir and not os.path.isdir(outdir):
+                os.makedirs(outdir)
 
-        if self.out_path and os.path.isfile(self.out_path):
-            os.remove(self.out_path)
+            if self.out_path and os.path.isfile(self.out_path):
+                os.remove(self.out_path)
         
         key = self.readkey()
 
@@ -156,8 +157,9 @@ class m3u8_dl(object):
     def try_merge(self):
             outfile  = None
 
-            if not outfile:
-                outfile = open(self.out_path, 'ab')
+            if not self.if_stream:
+                if not outfile:
+                    outfile = open(self.out_path, 'ab')
             while self.next_merged_id < self.length:
 
                 logger.info(f'{self.next_merged_id}/{self.length} merged')
@@ -169,19 +171,21 @@ class m3u8_dl(object):
 
                         infile= open(p, 'rb')
                         o  = self.decode(infile.read())
-
-                        sys.stdout.buffer.write(o)
-                        sys.stdout.flush()
-                        outfile.write(o)
+                        
+                        if not self.if_stream:
+                            outfile.write(o)
+                            outfile.flush()
+                        else:
+                            sys.stdout.buffer.write(o)
+                            sys.stdout.flush()
                         infile.close()
 
                         self.next_merged_id += 1
 
-                        outfile.flush()
                         os.remove(join(self.tempdir,str(oldidx)))
                     else:
                         time.sleep(1)
-                        # logger.debug(f'waiting for {self.next_merged_id} to merge ')
+                        logger.debug(f'waiting for {self.next_merged_id} to merge ')
                         logger.debug(f'unmerged {self.ready_to_merged} active_thread:{threading.active_count()}')
                 except Exception as e :
                     # logger.exception(e)
@@ -191,8 +195,10 @@ class m3u8_dl(object):
                     logger.error(e)
                     # print(self.ts_list[oldidx],oldidx)
                     self.downloadQ.put((self.ts_list[oldidx],oldidx))
-            if outfile:
-                outfile.close()
+
+            if not self.if_stream:
+                if outfile:
+                    outfile.close()
 
 def main(args):
     if args.debug:
@@ -219,7 +225,7 @@ def entry_point():
 def createParse():
     parser = argparse.ArgumentParser( formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="")
     parser.add_argument("url",  help="url" )
-    parser.add_argument("out_path",  help="out path" )
+    parser.add_argument('-o', '--out_path',type=str,  help="output path" ,default="./a.mp4")
     parser.add_argument('-p', '--proxy',type=str,  help="proxy" ,default="socks5h://127.0.0.1:5992")
     parser.add_argument('-t', '--threadcount',type=int,  help="thread count" ,default=2)
     parser.add_argument('-d', '--debug', help='debug info', default=False, action='store_true') 

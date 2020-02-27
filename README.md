@@ -14,16 +14,19 @@ pip install m3_dl
 
 # Usage 
 ```
-m3_dl <m3u8_url> <dest>
+m3_dl <m3u8_url> -o <dest>
 ```
 
 ex:
 ```
 # download to local file
-m3_dl http://aaa.com/a.m3u8  ./a.mp4
+m3_dl http://aaa.com/a.m3u8 -o ./a.mp4
 
 # pipe it to mpv
 m3_dl  https://you.tube-kuyun.com/20200210/1144_623a1fb3/index.m3u8 -w -s | mpv -
+
+# pipe it to mpv and save to local
+m3_dl  https://you.tube-kuyun.com/20200210/1144_623a1fb3/index.m3u8 -w -s | tee > ./a.mp4 | mpv -
 ```
 
 # Full Usage 
@@ -47,4 +50,3 @@ optional arguments:
 1. add temp name in case clash when multipal download happens
 2. put cache in memory to reduce disk RW
 3. enable redownlowd
-4. when in stream mode, output progress to stderr
