@@ -1,6 +1,9 @@
 # Install
+since the name m3u8_dl is taken by other developer...
+
+short it to m3_dl
 ```
-pip install m3u8_dl
+pip install m3_dl
 ```
 
 # Usage 
