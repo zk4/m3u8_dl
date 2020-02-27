@@ -160,7 +160,7 @@ class m3u8_dl(object):
                 outfile = open(self.out_path, 'ab')
             while self.next_merged_id < self.length:
 
-                logger.debug(f'{self.next_merged_id}/{self.length} merged')
+                logger.info(f'{self.next_merged_id}/{self.length} merged')
                 oldidx = self.next_merged_id
                 try:
                     if self.next_merged_id in self.ready_to_merged:

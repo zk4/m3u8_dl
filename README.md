@@ -15,8 +15,6 @@ pip install m3_dl
 # Usage 
 ```
 m3_dl <m3u8_url> <dest>
-
-
 ```
 
 ex:
@@ -26,7 +24,6 @@ m3_dl http://aaa.com/a.m3u8  ./a.mp4
 
 # pipe it to mpv
 m3_dl  https://you.tube-kuyun.com/20200210/1144_623a1fb3/index.m3u8 -w -s | mpv -
-
 ```
 
 # Full Usage 

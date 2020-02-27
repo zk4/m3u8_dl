@@ -33,7 +33,7 @@ install: uninstall
 	pip3 install . 
 
 uninstall:
-	pip3 uninstall m3_dl
+	pip3 uninstall -y m3_dl
 
 run:
 	python3 -m m3_dl "./index-v1-a1.m3" "./a/a.mp4" -d -t 4 -p socks5h://127.0.0.1:5993
