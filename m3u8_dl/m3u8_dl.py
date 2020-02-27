@@ -187,7 +187,12 @@ class m3u8_dl(object):
 def main(args):
     if args.debug:
         logger.setLevel("DEBUG")
-    logger.debug(args.proxy)
+
+    logger.debug(f'args.overwrite:{args.overwrite}')
+    if os.path.exists(args.out_path) and not args.overwrite:
+            logger.error(f'{args.out_path} exists! use -w if you want to overwrite it ')
+            sys.exit(-1) 
+
     m = m3u8_dl(args.url,args.out_path,args.proxy)
 
     # must ensure 1 for merged thread
@@ -207,7 +212,7 @@ def createParse():
     parser.add_argument('-p', '--proxy',type=str,  help="proxy" ,default="socks5h://127.0.0.1:5992")
     parser.add_argument('-t', '--threadcount',type=int,  help="thread count" ,default=2)
     parser.add_argument('-d', '--debug', help='debug info', default=False, action='store_true') 
+    parser.add_argument('-w', '--overwrite', help='overwrite exist file', action='store_true')  
 
-    # parser.add_argument('-h', '--headers',type=str,  help="headers" default="")
 
     return parser
