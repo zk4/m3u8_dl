@@ -37,6 +37,7 @@ class m3u8_dl(object):
         pool_size           = 100
         self.proxies        = {"https":proxy,"http":proxy}
         self.url            = url
+        self.is_http_url    = url.startswith("http")
         self.out_path       = out_path
         self.session        = self._get_http_session(pool_size, pool_size, 5)
         self.m3u8_content   = self.m3u8content(url)
@@ -45,7 +46,7 @@ class m3u8_dl(object):
         self.ts_list_pair   = zip(self.ts_list, [n for n in range(len(self.ts_list))])
         self.next_merged_id = 0
         self.outdir         = dirname(out_path)
-        self.read_to_merged       = set()
+        self.ready_to_merged       = set()
         self.downloadQ      = queue.Queue()
 
         if self.outdir and not os.path.isdir(self.outdir):
@@ -102,6 +103,9 @@ class m3u8_dl(object):
             if ":path" in r.headers:
                 print(r.headers[":path"])
             if r.ok:
+                ts_list = [urljoin(m3u8_url, n.strip()) for n in r.text.split('\n') if n and not n.startswith("#")]
+                if ts_list[0].endswith("m3u8"):
+                    return self.m3u8content(urljoin(m3u8_url,ts_list[0]))
                 return r.text
         else:
             return Path(m3u8_url).read_text()
@@ -111,10 +115,11 @@ class m3u8_dl(object):
     def download(self,url,i):
         try:
             d = D(proxies=self.proxies,headers=headers)
+            logger.debug(f'url:{url}')
             ret = d.download(url,join(dirname(self.out_path),str(i)))
             if ret:
                 # logger.info(f'{i} done')
-                self.read_to_merged.add(i)
+                self.ready_to_merged.add(i)
             else:
                 logger.error(f'{i} download fails! re Q')
                 self.downloadQ.put((url,i))
@@ -155,8 +160,8 @@ class m3u8_dl(object):
                 logger.debug(f'{self.next_merged_id}/{self.length} merged')
                 oldidx = self.next_merged_id
                 try:
-                    if self.next_merged_id in self.read_to_merged:
-                        self.read_to_merged.remove(self.next_merged_id)
+                    if self.next_merged_id in self.ready_to_merged:
+                        self.ready_to_merged.remove(self.next_merged_id)
                         output = dirname(self.out_path)
                         p = os.path.join(output, str(self.next_merged_id))
 
@@ -173,7 +178,7 @@ class m3u8_dl(object):
                     else:
                         time.sleep(1)
                         # logger.debug(f'waiting for {self.next_merged_id} to merge ')
-                        logger.debug(f'unmerged {self.read_to_merged} active_thread:{threading.active_count()}')
+                        logger.debug(f'unmerged {self.ready_to_merged} active_thread:{threading.active_count()}')
                 except Exception as e :
                     # logger.exception(e)
                     self.next_merged_id=oldidx

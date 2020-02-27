@@ -36,4 +36,3 @@ optional arguments:
 2. put cache in memory to reduce disk RW
 3. enable redownlowd
 4. smart schedule
-5. support m3u8 in m3u8 in http request
