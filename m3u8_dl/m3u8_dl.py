@@ -41,7 +41,7 @@ class m3u8_dl(object):
         self.out_path       = out_path
         self.session        = self._get_http_session(pool_size, pool_size, 5)
         self.m3u8_content   = self.m3u8content(url)
-        self.ts_list        = [urljoin(url, n.strip()) for n in self.m3u8_content.split('\n') if n and not n.startswith("#")]
+        self.ts_list        = [urljoin(self.url, n.strip()) for n in self.m3u8_content.split('\n') if n and not n.startswith("#")]
         self.length         = len(self.ts_list)
         self.ts_list_pair   = zip(self.ts_list, [n for n in range(len(self.ts_list))])
         self.next_merged_id = 0
@@ -105,7 +105,8 @@ class m3u8_dl(object):
             if r.ok:
                 ts_list = [urljoin(m3u8_url, n.strip()) for n in r.text.split('\n') if n and not n.startswith("#")]
                 if ts_list[0].endswith("m3u8"):
-                    return self.m3u8content(urljoin(m3u8_url,ts_list[0]))
+                    self.url = urljoin(m3u8_url,ts_list[0])
+                    return self.m3u8content(self.url)
                 return r.text
         else:
             return Path(m3u8_url).read_text()
