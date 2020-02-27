@@ -47,7 +47,7 @@ class m3u8_dl(object):
         self.next_merged_id = 0
         self.outdir         = dirname(out_path)
         self.ready_to_merged       = set()
-        self.downloadQ      = queue.Queue()
+        self.downloadQ      = queue.PriorityQueue()
 
         if self.outdir and not os.path.isdir(self.outdir):
             os.makedirs(self.outdir)
