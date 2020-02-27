@@ -31,18 +31,25 @@ m3_dl  https://you.tube-kuyun.com/20200210/1144_623a1fb3/index.m3u8 -w -s | tee 
 
 # Full Usage 
 ```
-m3u8_dl --help
+m3_dl --help
 
-usage: m3u8_dl [-h] [-p PROXY] url out_path
+usage: m3_dl [-h] [-o OUT_PATH] [-p PROXY] [-t THREADCOUNT] [-d] [-w] [-s] url
 
 positional arguments:
   url                   url
-  out_path              out path
 
 optional arguments:
   -h, --help            show this help message and exit
+  -o OUT_PATH, --out_path OUT_PATH
+                        output path (default: ./a.mp4)
   -p PROXY, --proxy PROXY
                         proxy (default: socks5h://127.0.0.1:5992)
+  -t THREADCOUNT, --threadcount THREADCOUNT
+                        thread count (default: 2)
+  -d, --debug           debug info (default: False)
+  -w, --overwrite       overwrite exist file (default: False)
+  -s, --stream          stream output for pipe (default: False)
+
 ```
 
 
