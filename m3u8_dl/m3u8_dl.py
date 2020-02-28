@@ -197,7 +197,6 @@ class m3u8_dl(object):
 
             if self.out_path:
                 outfile.close()
-                os.system(f"ffmpeg -i '{self.out_path}' -codec copy '{self.out_path}.mp4'")
             
 
 def main(args):
