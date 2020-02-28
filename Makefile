@@ -27,7 +27,7 @@ coverage:
 	pytest --cov=m3_dl/ tests/
 
 install: uninstall
-	pip3 install  
+	pip3 install  .
 
 uninstall:
 	pip3 uninstall -y m3_dl
