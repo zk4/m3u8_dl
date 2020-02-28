@@ -47,7 +47,7 @@ optional arguments:
   -t THREADCOUNT, --threadcount THREADCOUNT
                         thread count (default: 2)
   -d, --debug           debug info (default: False)
-  -w, --overwrite       overwrite exist file (default: False)
+  -w, --overwrite       overwrite existed file (default: False)
   -s, --stream          stream output for pipe (default: False)
 
 ```
