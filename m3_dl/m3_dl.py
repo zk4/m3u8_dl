@@ -105,8 +105,6 @@ class m3u8_dl(object):
         logger.debug(f"m3u8_url {m3u8_url}")
         if m3u8_url.startswith("http"):
             r = self.session.get(m3u8_url, timeout=10,headers=headers,proxies=self.proxies)
-            if ":path" in r.headers:
-                print(r.headers[":path"])
             if r.ok:
                 ts_list = [urljoin(m3u8_url, n.strip()) for n in r.text.split('\n') if n and not n.startswith("#")]
                 if ts_list[0].endswith("m3u8"):
@@ -215,7 +213,6 @@ def main(args):
     if args.version:
         mydir = os.path.dirname(os.path.abspath(__file__))
 
-        print(join(mydir,"version"))
         contents =Path(join(mydir,"..","version")).read_text()
         print(contents)
         return 
