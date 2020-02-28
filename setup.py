@@ -41,7 +41,7 @@ if __name__ == '__main__':
         install_requires=open('requirements.txt', 'r').read().strip().split(),
         entry_points={
             'console_scripts': [
-                'm3_dl = m3u8_dl:entry_point'
+                'm3_dl = m3_dl:entry_point'
             ]
         },
         classifiers=[
