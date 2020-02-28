@@ -195,8 +195,10 @@ class m3u8_dl(object):
                     # print(self.ts_list[oldidx],oldidx)
                     self.downloadQ.put((self.ts_list[oldidx],oldidx))
 
-            if not self.out_path:
+            if self.out_path:
                 outfile.close()
+                os.system(f"ffmpeg -i '{self.out_path}' -codec copy '{self.out_path}.mp4'")
+            
 
 def main(args):
     if args.debug:

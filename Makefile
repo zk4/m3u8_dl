@@ -71,3 +71,6 @@ env:
 	python3 -m venv env
 	. env/bin/activate
 
+
+convert:
+	ffmpeg -i anjia12.mkv -codec copy anjia12_mp4.mp4
