@@ -37,7 +37,7 @@ if __name__ == '__main__':
         python_requires='>3.0.0',
         zip_safe=False,
         packages=find_packages(exclude=['tests', 'tests.*']),
-        package_data={'m3u8_dl.logx': ['logging.yaml']},
+        package_data={'m3_dl.logx': ['logging.yaml']},
         install_requires=open('requirements.txt', 'r').read().strip().split(),
         entry_points={
             'console_scripts': [

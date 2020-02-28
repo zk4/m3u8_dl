@@ -12,17 +12,17 @@ formatters:
 handlers:
     console:
         class: logging.StreamHandler
-        level: DEBUG
+        level: INFO
         formatter: standard
         stream: ext://sys.stderr
 
 root:
-    level: DEBUG
+    level: INFO
     handlers: [console]
     propagate: no
 
 loggers:
     m3u8_dl:
-        level: DEBUG
+        level: INFO
         handlers: [console]
         propagate: no

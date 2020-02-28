@@ -12,6 +12,7 @@ def setup_logging(default_path='logging.yaml', default_level=logging.DEBUG, env_
     value = os.getenv(env_key, None)
     if value:
         path = value
+    print("-----------"+path)
     if os.path.exists(path):
         with open(path, 'rt') as f:
             try:
