@@ -50,7 +50,6 @@ class m3u8_dl(object):
         self.downloadQ      = queue.PriorityQueue()
         self.tempdir        = tempfile.gettempdir()
         # self.tempdir        = "/Users/zk/git/pythonPrj/m3u8_dl/temp/"
-        self.reque_count    = {}
         self.tempname       = str(uuid.uuid4())
 
         if self.out_path:
@@ -131,17 +130,11 @@ class m3u8_dl(object):
                 self.ready_to_merged.add(i)
             else:
                 logger.error(f'{i} download fails! re Q')
-                self.reque_count_plus_1(i)
                 self.downloadQ.put((i,url))
 
         except Exception as e :
             logger.exception(e)
 
-    def reque_count_plus_1(self,i):
-        if str(i) not in self.reque_count:
-            self.reque_count[str(i)]=1
-        else:
-            self.reque_count[str(i)]+=1
 
     def target(self):
         while self.next_merged_id < self.length:
@@ -200,16 +193,17 @@ class m3u8_dl(object):
                         time.sleep(1)
                         logger.debug(f'waiting for {self.next_merged_id} to merge ')
                         logger.debug(f'unmerged {self.ready_to_merged} active_thread:{threading.active_count()}')
-                        logger.debug(f'reque_count {self.reque_count}')
                 except Exception as e :
                     # logger.exception(e)
-                    self.next_merged_id=oldidx
-                    os.remove(join(self.tempdir,self.tempname,str(oldidx)))
-                    logger.error(f'{oldidx} merge error ,reput to thread')
-                    logger.exception(e)
-                    # print(self.ts_list[oldidx],oldidx)
-                    self.reque_count_plus_1(oldidx)
-                    self.downloadQ.put((oldidx,self.ts_list[oldidx]))
+                    try:
+                        self.next_merged_id=oldidx
+                        os.remove(join(self.tempdir,self.tempname,str(oldidx)))
+                        logger.error(f'{oldidx} merge error ,reput to thread')
+                        logger.exception(e)
+                        # print(self.ts_list[oldidx],oldidx)
+                        self.downloadQ.put((oldidx,self.ts_list[oldidx]))
+                    except Exception as e2:
+                        logger.exception(e)
 
             if self.out_path:
                 outfile.close()
