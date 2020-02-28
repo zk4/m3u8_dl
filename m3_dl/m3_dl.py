@@ -124,21 +124,24 @@ class m3u8_dl(object):
             d = D(proxies=self.proxies,headers=headers)
             logger.debug(f'url:{url}')
             pathname = join(self.tempdir,self.tempname,str(i))
-            logger.debug(f'pathname:{pathname}')
+            # logger.debug(f'pathname:{pathname}')
             ret = d.download(url,pathname)
             if ret:
                 # logger.info(f'{i} done')
                 self.ready_to_merged.add(i)
             else:
                 logger.error(f'{i} download fails! re Q')
-                if str(i) not in self.reque_count:
-                    self.reque_count[str(i)]=1
-                else:
-                    self.reque_count[str(i)]+=1
+                self.reque_count_plus_1(i)
                 self.downloadQ.put((i,url))
 
         except Exception as e :
             logger.exception(e)
+
+    def reque_count_plus_1(self,i):
+        if str(i) not in self.reque_count:
+            self.reque_count[str(i)]=1
+        else:
+            self.reque_count[str(i)]+=1
 
     def target(self):
         while self.next_merged_id < self.length:
@@ -170,10 +173,11 @@ class m3u8_dl(object):
                 outfile = open(self.out_path, 'ab')
             while self.next_merged_id < self.length:
 
-                logger.info(f'{self.next_merged_id}/{self.length} merged')
+                logger.info(f'{self.next_merged_id}/{self.length} merged ')
                 oldidx = self.next_merged_id
                 try:
                     if self.next_merged_id in self.ready_to_merged:
+                        logger.info(f'try merge {self.next_merged_id}  ....')
                         self.ready_to_merged.remove(self.next_merged_id)
                         p = os.path.join(self.tempdir,self.tempname, str(self.next_merged_id))
 
@@ -202,8 +206,9 @@ class m3u8_dl(object):
                     self.next_merged_id=oldidx
                     os.remove(join(self.tempdir,self.tempname,str(oldidx)))
                     logger.error(f'{oldidx} merge error ,reput to thread')
-                    logger.error(e)
+                    logger.exception(e)
                     # print(self.ts_list[oldidx],oldidx)
+                    self.reque_count_plus_1(oldidx)
                     self.downloadQ.put((oldidx,self.ts_list[oldidx]))
 
             if self.out_path:
