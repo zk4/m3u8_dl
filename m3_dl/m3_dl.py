@@ -47,7 +47,7 @@ class m3u8_dl(object):
         self.ts_list_pair   = zip(self.ts_list, [n for n in range(len(self.ts_list))])
         self.next_merged_id = 0
         self.ready_to_merged= set()
-        self.downloadQ      = queue.Queue()
+        self.downloadQ      = queue.PriorityQueue()
         self.tempdir        = tempfile.gettempdir()
         # self.tempdir        = "/Users/zk/git/pythonPrj/m3u8_dl/temp/"
         self.reque_count    = {}
@@ -135,7 +135,7 @@ class m3u8_dl(object):
                     self.reque_count[str(i)]=1
                 else:
                     self.reque_count[str(i)]+=1
-                self.downloadQ.put((url,i))
+                self.downloadQ.put((i,url))
 
         except Exception as e :
             logger.exception(e)
@@ -143,7 +143,7 @@ class m3u8_dl(object):
     def target(self):
         while self.next_merged_id < self.length:
             try:
-                url,idx = self.downloadQ.get(timeout=3)
+                idx,url = self.downloadQ.get(timeout=3)
                 if url:
                     self.download(url,idx)
             except Exception as e:
@@ -160,7 +160,7 @@ class m3u8_dl(object):
 
 
             for pair in self.ts_list_pair:
-                self.downloadQ.put((pair[0],pair[1]))
+                self.downloadQ.put((pair[1],pair[0]))
 
 
     def try_merge(self):
@@ -204,7 +204,7 @@ class m3u8_dl(object):
                     logger.error(f'{oldidx} merge error ,reput to thread')
                     logger.error(e)
                     # print(self.ts_list[oldidx],oldidx)
-                    self.downloadQ.put((self.ts_list[oldidx],oldidx))
+                    self.downloadQ.put((oldidx,self.ts_list[oldidx]))
 
             if self.out_path:
                 outfile.close()
