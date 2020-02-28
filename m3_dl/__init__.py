@@ -1,4 +1,4 @@
-from .m3u8_dl import (entry_point,
+from .m3_dl import (entry_point,
                      main,
                      createParse,m3u8_dl)
 

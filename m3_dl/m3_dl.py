@@ -12,6 +12,7 @@ import requests
 import subprocess
 import threading
 import tempfile
+import uuid
 import time
 from Crypto.Cipher import AES
 import sys
@@ -46,8 +47,11 @@ class m3u8_dl(object):
         self.ts_list_pair   = zip(self.ts_list, [n for n in range(len(self.ts_list))])
         self.next_merged_id = 0
         self.ready_to_merged= set()
-        self.downloadQ      = queue.PriorityQueue()
+        self.downloadQ      = queue.Queue()
         self.tempdir        = tempfile.gettempdir()
+        # self.tempdir        = "/Users/zk/git/pythonPrj/m3u8_dl/temp/"
+        self.reque_count    = {}
+        self.tempname       = str(uuid.uuid4())
 
         if self.out_path:
             outdir              = dirname(out_path)
@@ -119,12 +123,18 @@ class m3u8_dl(object):
         try:
             d = D(proxies=self.proxies,headers=headers)
             logger.debug(f'url:{url}')
-            ret = d.download(url,join(self.tempdir,str(i)))
+            pathname = join(self.tempdir,self.tempname,str(i))
+            logger.debug(f'pathname:{pathname}')
+            ret = d.download(url,pathname)
             if ret:
                 # logger.info(f'{i} done')
                 self.ready_to_merged.add(i)
             else:
                 logger.error(f'{i} download fails! re Q')
+                if str(i) not in self.reque_count:
+                    self.reque_count[str(i)]=1
+                else:
+                    self.reque_count[str(i)]+=1
                 self.downloadQ.put((url,i))
 
         except Exception as e :
@@ -165,7 +175,7 @@ class m3u8_dl(object):
                 try:
                     if self.next_merged_id in self.ready_to_merged:
                         self.ready_to_merged.remove(self.next_merged_id)
-                        p = os.path.join(self.tempdir, str(self.next_merged_id))
+                        p = os.path.join(self.tempdir,self.tempname, str(self.next_merged_id))
 
                         infile= open(p, 'rb')
                         o  = self.decode(infile.read())
@@ -181,15 +191,16 @@ class m3u8_dl(object):
 
                         self.next_merged_id += 1
 
-                        os.remove(join(self.tempdir,str(oldidx)))
+                        os.remove(join(self.tempdir,self.tempname,str(oldidx)))
                     else:
                         time.sleep(1)
                         logger.debug(f'waiting for {self.next_merged_id} to merge ')
                         logger.debug(f'unmerged {self.ready_to_merged} active_thread:{threading.active_count()}')
+                        logger.debug(f'reque_count {self.reque_count}')
                 except Exception as e :
                     # logger.exception(e)
                     self.next_merged_id=oldidx
-                    os.remove(join(self.tempdir,str(oldidx)))
+                    os.remove(join(self.tempdir,self.tempname,str(oldidx)))
                     logger.error(f'{oldidx} merge error ,reput to thread')
                     logger.error(e)
                     # print(self.ts_list[oldidx],oldidx)
@@ -202,6 +213,13 @@ class m3u8_dl(object):
 def main(args):
     if args.debug:
         logger.setLevel("DEBUG")
+    if args.version:
+        mydir = os.path.dirname(os.path.abspath(__file__))
+
+        print(join(mydir,"version"))
+        contents =Path(join(mydir,"..","version")).read_text()
+        print(contents)
+        return 
 
 
     logger.debug(f'args.out_path:{args.out_path}')
@@ -223,13 +241,14 @@ def entry_point():
 
 def createParse():
     parser = argparse.ArgumentParser( formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="")
-    parser.add_argument("url",  help="url" )
+    parser.add_argument("url",  help="url")
     parser.add_argument('-o', '--out_path',type=str,  help="output path" )
     parser.add_argument('-p', '--proxy',type=str,  help="proxy" ,default="socks5h://127.0.0.1:5992")
     parser.add_argument('-t', '--threadcount',type=int,  help="thread count" ,default=2)
     parser.add_argument('-d', '--debug', help='debug info', default=False, action='store_true') 
     parser.add_argument('-w', '--overwrite', help='overwrite existed file', action='store_true')  
     parser.add_argument('-s',  '--stream',help='stream output for pipe', action='store_true')  
+    parser.add_argument('-v',  '--version',help='version', action='store_true')  
 
 
     return parser

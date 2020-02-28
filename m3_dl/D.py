@@ -4,6 +4,7 @@ import os
 from io import BytesIO
 import requests
 from tqdm import tqdm
+import traceback
 import logging
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,9 @@ class D():
 
     def download(self, url, destFile, isAppend=True):
         try:
+            if not os.path.isdir(os.path.dirname(destFile)):
+                    os.mkdir(os.path.dirname(destFile))
+            
 
             if os.path.exists(destFile):
                 return True
@@ -40,7 +44,7 @@ class D():
                 os.remove(destFile)
                 localSize=0
 
-            resp = requests.request("GET", url, headers=self.headers, stream=True, proxies=self.proxies, allow_redirects=True)
+            resp = requests.request("GET", url,timeout=10, headers=self.headers, stream=True, proxies=self.proxies, allow_redirects=True)
             # if 300>resp.status_code >= 200:
             if resp.status_code>=200:
                 # logger.debug(f"stauts_code:{resp.status_code},destfile:{destFile}")
@@ -64,7 +68,8 @@ class D():
             raise Exception("status_code is not 200.") 
 
         except Exception as e:
-            logger.error(e)
+            logger.exception(e)
+            # traceback.print_stack()
             return False
 
     def getWebFileSize(self, url):

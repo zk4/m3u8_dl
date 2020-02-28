@@ -17,12 +17,12 @@ handlers:
         stream: ext://sys.stderr
 
 root:
-    level: INFO
+    level: DEBUG
     handlers: [console]
     propagate: no
 
 loggers:
     m3u8_dl:
-        level: INFO
+        level: DEBUG
         handlers: [console]
         propagate: no
