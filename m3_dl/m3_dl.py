@@ -94,7 +94,9 @@ class m3u8_dl(object):
                 r = self.session.get(uri,proxies=self.proxies)
                 if r.status_code ==200:
                     return  r.content
-                raise  RuntimeError(f"Can`t download key url: {uri}, maybe you should use proxy")
+                logger.fatal(f"Can`t download key url: {uri}, maybe you should use proxy")
+                sys.exit(-1)
+                
 
     def _get_http_session(self, pool_connections, pool_maxsize, max_retries):
         session = requests.Session()
@@ -146,7 +148,7 @@ class m3u8_dl(object):
                 if url:
                     self.download(url,idx)
             except Exception as e:
-                # logger.exception(e)
+                logger.exception(e)
                 pass
 
     def run(self,threadcount):
@@ -197,7 +199,7 @@ class m3u8_dl(object):
                         logger.debug(f'waiting for {self.next_merged_id} to merge ')
                         logger.debug(f'unmerged {self.ready_to_merged} active_thread:{threading.active_count()}')
                 except Exception as e :
-                    # logger.exception(e)
+                    logger.exception(e)
                     try:
                         self.next_merged_id=oldidx
                         os.remove(join(self.tempdir,self.tempname,str(oldidx)))

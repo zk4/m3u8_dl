@@ -33,7 +33,7 @@ uninstall:
 	pip3 uninstall -y m3_dl
 
 run:
-	python3 -m m3_dl "https://doubanzyv1.tyswmp.com/2018/07/26/0vhyINWfXeWIkrJd/playlist.m3u8" -w -o "./a.mp4" -t 4
+	python3 -m m3_dl "https://doubanzyv1.tyswmp.com/2018/07/26/0vhyINWfXeWIkrJd/playlist.m3u8" -k -w -o "./a.mp4" -t 20
 
 stream:
 	python3 -m m3_dl "https://doubanzyv1.tyswmp.com/2018/07/26/0vhyINWfXeWIkrJd/playlist.m3u8" -k | mpv -
