@@ -13,21 +13,18 @@ handlers:
         class: logging.StreamHandler
         formatter: standard
 
-    colored:
-        class: m3_dl.logx.ColoredHandler
-
 root:
     level: DEBUG
-    handlers: [colored,console]
+    handlers: [console]
     propagate: no
 
 loggers:
     logx:
         level: DEBUG
-        handlers: [colored,console]
+        handlers: [console]
         propagate: no
     m3_dl:
         level: DEBUG
-        handlers: [colored,console]
+        handlers: [console]
         propagate: no
 
