@@ -91,7 +91,9 @@ class m3u8_dl(object):
                 uri = urljoin(self.url,uri)
 
                 r = self.session.get(uri,proxies=self.proxies)
-                return  r.content
+                if r.status_code ==200:
+                    return  r.content
+                raise  RuntimeError(f"Can`t download key url: {uri}, maybe you should use proxy")
 
     def _get_http_session(self, pool_connections, pool_maxsize, max_retries):
         session = requests.Session()
