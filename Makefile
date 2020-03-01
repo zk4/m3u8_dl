@@ -33,7 +33,7 @@ uninstall:
 	pip3 uninstall -y m3_dl
 
 run:
-	python3 -m m3_dl "https://doubanzyv1.tyswmp.com/2018/07/26/0vhyINWfXeWIkrJd/playlist.m3u8" -k -w -o "./a.mp4" -t 20
+	python3 -m m3_dl "https://doubanzyv1.tyswmp.com/2018/07/26/0vhyINWfXeWIkrJd/playlist.m3u8" -k -w -o "./a.mp4" 
 
 stream:
 	python3 -m m3_dl "https://doubanzyv1.tyswmp.com/2018/07/26/0vhyINWfXeWIkrJd/playlist.m3u8" -k | mpv -
@@ -51,7 +51,7 @@ upload-to-test: rm
 	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
 
-upload-to-prod: rm 
+upload-to-prod: rm auto_version 
 	python3 setup.py bdist_wheel --universal
 	twine upload dist/*
 

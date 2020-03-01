@@ -8,16 +8,18 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+
 class D():
 
-    def __init__(self, cookie=None, proxies=None,headers=None,verify= True,ignore_local=False,retry_times=9999999999) -> None:
-        self.cookie = cookie
-        self.proxies = proxies
-        self.headers=headers
-        self.ignore_local =ignore_local
-        self.retry_times = retry_times
+    def __init__(self, cookie    = None, proxies = None,headers = None,verify = True,debug = False,ignore_local = False,retry_times = 9999999999) -> None:
+        self.cookie              = cookie
+        self.proxies             = proxies
+        self.headers             = headers
+        self.ignore_local        = ignore_local
+        self.retry_times         = retry_times
         self.current_retry_times = 0
-        self.verify = verify
+        self.verify              = verify
+        self.debug               = debug
         super().__init__()
 
     def download(self, url, destFile, isAppend=True):
@@ -68,7 +70,8 @@ class D():
             raise Exception("status_code is not 200.") 
 
         except Exception as e:
-            logger.exception(e)
+            if self.debug:
+                logger.exception(e)
             # traceback.print_stack()
             return False
 

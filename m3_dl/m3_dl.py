@@ -17,6 +17,12 @@ import time
 from Crypto.Cipher import AES
 import sys
 
+# don`t show verfication warning
+from urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
+
+
+
 from .D  import D
 from .logx import setup_logging
 
@@ -34,7 +40,7 @@ headers = {
 
 class m3u8_dl(object):
 
-    def __init__(self,url,out_path,proxy,not_verify_ssl):
+    def __init__(self,url,out_path,proxy,not_verify_ssl,debug):
         pool_size           = 10
         self.proxies        = {"https":proxy,"http":proxy}
         self.verify         = not not_verify_ssl
@@ -52,6 +58,7 @@ class m3u8_dl(object):
         self.tempdir        = tempfile.gettempdir()
         # self.tempdir        = "/Users/zk/git/pythonPrj/m3u8_dl/temp/"
         self.tempname       = str(uuid.uuid4())
+        self.debug          = debug
 
         if self.out_path:
             outdir              = dirname(out_path)
@@ -125,7 +132,7 @@ class m3u8_dl(object):
 
     def download(self,url,i):
         try:
-            d = D(proxies=self.proxies,headers=headers,verify= self.verify)
+            d = D(proxies=self.proxies,headers=headers,verify=self.verify,debug=self.debug)
             logger.debug(f'url:{url}')
             pathname = join(self.tempdir,self.tempname,str(i))
             # logger.debug(f'pathname:{pathname}')
@@ -138,7 +145,8 @@ class m3u8_dl(object):
                 self.downloadQ.put((i,url))
 
         except Exception as e :
-            logger.exception(e)
+            if self.debug:
+                logger.exception(e)
 
 
     def target(self):
@@ -230,7 +238,13 @@ def main(args):
             logger.error(f'{args.out_path} exists! use -w if you want to overwrite it ')
             sys.exit(-1) 
 
-    m = m3u8_dl(args.url,args.out_path,args.proxy,args.ignore_certificate_verfication)
+    m = m3u8_dl(
+            args.url,
+            args.out_path,
+            args.proxy,
+            args.ignore_certificate_verfication,
+            args.debug
+            )
 
     # must ensure 1 for merged thread
     threadcount = args.threadcount + 1
@@ -252,7 +266,7 @@ def createParse():
     parser.add_argument('-w', '--overwrite', help='overwrite existed file', action='store_true')  
     parser.add_argument('-s',  '--stream',help='stream output for pipe', action='store_true')  
     parser.add_argument('-v',  '--version',help='version', action='store_true')  
-    parser.add_argument('-k',  '--ignore_certificate_verfication',help='ignore certificate verfication, don`t use this option only you know what you are doing!', action='store_true')  
+    parser.add_argument('-k',  '--ignore_certificate_verfication',help='ignore certificate verfication, don`t use this option only if you know what you are doing!', action='store_true')  
 
 
     return parser
