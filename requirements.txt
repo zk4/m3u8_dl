@@ -1,10 +1,4 @@
-certifi==2019.11.28
-chardet==3.0.4
-idna==2.9
-Naked==0.1.31
-pycryptodome==3.9.7
 PySocks==1.7.1
 PyYAML==5.3
 requests==2.23.0
-shellescape==3.8.1
 urllib3==1.25.8
