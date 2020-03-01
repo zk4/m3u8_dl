@@ -3,22 +3,18 @@ from setuptools import setup, find_packages
 from pathlib import Path
 
 versionfile = Path("./version")
-version = versionfile.read_text().split('\n')[0]
+version = versionfile.read_text().split("\n")[0]
 [mainv,modulev,minorv] = version.split(".")
-minorv=1+int(minorv)
-
-newversion =f"{mainv}.{modulev}.{minorv}"
-versionfile.write_text(newversion)
-print(mainv,modulev,minorv)
 
 VERSION = (int(mainv), int(modulev), int(minorv))
 __version__ = '.'.join(map(str, VERSION[0:3]))
 __description__ = '''this is a description'''
 __author__ = 'zk'
-__author_email__ = 'mailsforabhinav@gmail.com'
+__author_email__ = 'liuzq7@gmail.com'
 __homepage__ = 'https://github.com/zk4/m3u8_dl'
 __download_url__ = '%s/archive/master.zip' % __homepage__
 __license__ = 'BSD'
+
 
 if __name__ == '__main__':
     setup(
