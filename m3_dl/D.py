@@ -10,13 +10,14 @@ logger = logging.getLogger(__name__)
 
 class D():
 
-    def __init__(self, cookie=None, proxies=None,headers=None,ignore_local=False,retry_times=9999999999) -> None:
+    def __init__(self, cookie=None, proxies=None,headers=None,verify= True,ignore_local=False,retry_times=9999999999) -> None:
         self.cookie = cookie
         self.proxies = proxies
         self.headers=headers
         self.ignore_local =ignore_local
         self.retry_times = retry_times
         self.current_retry_times = 0
+        self.verify = verify
         super().__init__()
 
     def download(self, url, destFile, isAppend=True):
@@ -43,7 +44,7 @@ class D():
                 os.remove(destFile)
                 localSize=0
 
-            resp = requests.request("GET", url,timeout=10, headers=self.headers, stream=True, proxies=self.proxies, allow_redirects=True,verify=False)
+            resp = requests.request("GET", url,timeout=10, headers=self.headers, stream=True, proxies=self.proxies, allow_redirects=True,verify=self.verify)
             # if 300>resp.status_code >= 200:
             if resp.status_code>=200:
                 # logger.debug(f"stauts_code:{resp.status_code},destfile:{destFile}")
@@ -75,7 +76,7 @@ class D():
         if self.cookie:
             self.headers['cookie']=self.cookie
 
-        rr = requests.get(url, headers=self.headers, stream=True, proxies=self.proxies)
+        rr = requests.get(url, headers=self.headers, stream=True, proxies=self.proxies, verify=self.verify)
         file_size = int(rr.headers['Content-Length'])
 
         if 300>rr.status_code>=200:

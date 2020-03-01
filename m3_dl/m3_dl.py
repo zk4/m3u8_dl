@@ -34,9 +34,10 @@ headers = {
 
 class m3u8_dl(object):
 
-    def __init__(self,url,out_path,proxy):
+    def __init__(self,url,out_path,proxy,not_verify_ssl):
         pool_size           = 10
         self.proxies        = {"https":proxy,"http":proxy}
+        self.verify         = not not_verify_ssl
         self.url            = url
         self.is_http_url    = url.startswith("http")
         self.out_path       = out_path
@@ -106,7 +107,7 @@ class m3u8_dl(object):
     def m3u8content(self,m3u8_url):
         logger.info(f"m3u8_url {m3u8_url}")
         if m3u8_url.startswith("http"):
-            r = self.session.get(m3u8_url, timeout=10,headers=headers,proxies=self.proxies,verify=False)
+            r = self.session.get(m3u8_url, timeout=20,headers=headers,proxies=self.proxies,verify=self.verify)
             if r.ok:
                 ts_list = [urljoin(m3u8_url, n.strip()) for n in r.text.split('\n') if n and not n.startswith("#")]
                 if ts_list[0].endswith("m3u8"):
@@ -122,7 +123,7 @@ class m3u8_dl(object):
 
     def download(self,url,i):
         try:
-            d = D(proxies=self.proxies,headers=headers)
+            d = D(proxies=self.proxies,headers=headers,verify= self.verify)
             logger.debug(f'url:{url}')
             pathname = join(self.tempdir,self.tempname,str(i))
             # logger.debug(f'pathname:{pathname}')
@@ -227,7 +228,7 @@ def main(args):
             logger.error(f'{args.out_path} exists! use -w if you want to overwrite it ')
             sys.exit(-1) 
 
-    m = m3u8_dl(args.url,args.out_path,args.proxy)
+    m = m3u8_dl(args.url,args.out_path,args.proxy,args.ignore_certificate_verfication)
 
     # must ensure 1 for merged thread
     threadcount = args.threadcount + 1
@@ -249,6 +250,7 @@ def createParse():
     parser.add_argument('-w', '--overwrite', help='overwrite existed file', action='store_true')  
     parser.add_argument('-s',  '--stream',help='stream output for pipe', action='store_true')  
     parser.add_argument('-v',  '--version',help='version', action='store_true')  
+    parser.add_argument('-k',  '--ignore_certificate_verfication',help='ignore certificate verfication, don`t use this option only you know what you are doing!', action='store_true')  
 
 
     return parser
