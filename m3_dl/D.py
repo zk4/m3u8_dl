@@ -3,7 +3,6 @@
 import os
 from io import BytesIO
 import requests
-from tqdm import tqdm
 import traceback
 import logging
 logger = logging.getLogger(__name__)

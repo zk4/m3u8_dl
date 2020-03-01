@@ -33,7 +33,7 @@ uninstall:
 	pip3 uninstall -y m3_dl
 
 run:
-	python3 -m m3_dl "./video.m3u8" -w -o "./a.mp4" -d -t 4 -p socks5h://127.0.0.1:5992
+	python3 -m m3_dl "./index-v1-a1.m3u8" -w -o "./a.mp4" -d -t 4 -p socks5h://127.0.0.1:5992
 	
 
 all: rm uninstall install run 
