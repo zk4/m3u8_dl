@@ -61,8 +61,8 @@ class D():
                         logger.debug(f"ERROR, something went wrong wroteSize{wrote} != webSize{webSize}")
                         return False
 
-                    os.rename(destFile+".tmp",destFile)
-                    return True
+                os.rename(destFile+".tmp",destFile)
+                return True
 
             logger.debug(f"stauts_code:{resp.status_code},url:{resp.url}") 
             raise Exception("status_code is not 200.") 
