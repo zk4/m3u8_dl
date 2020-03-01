@@ -76,3 +76,8 @@ env:
 
 convert:
 	ffmpeg -i anjia12.mkv -codec copy anjia12_mp4.mp4
+
+
+
+auto_version:
+	python version.py
