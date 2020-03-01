@@ -7,6 +7,7 @@ from urllib.parse import urljoin
 import argparse
 import logging
 import os
+import random
 import queue
 import requests
 import subprocess
@@ -114,7 +115,7 @@ class m3u8_dl(object):
 
 
     def m3u8content(self,m3u8_url):
-        logger.info(f"m3u8_url {m3u8_url}")
+        logger.debug(f"m3u8_url {m3u8_url}")
         if m3u8_url.startswith("http"):
             r = self.session.get(m3u8_url, timeout=20,headers=headers,proxies=self.proxies,verify=self.verify)
             if r.ok:
@@ -141,7 +142,7 @@ class m3u8_dl(object):
                 # logger.info(f'{i} done')
                 self.ready_to_merged.add(i)
             else:
-                logger.error(f'{i} download fails! re Q')
+                logger.debug(f'{i} download fails! re Q')
                 self.downloadQ.put((i,url))
 
         except Exception as e :
@@ -178,12 +179,12 @@ class m3u8_dl(object):
             if self.out_path:
                 outfile = open(self.out_path, 'ab')
             while self.next_merged_id < self.length:
-
-                logger.info(f'{self.next_merged_id}/{self.length} merged ')
+                dots = random.randint(0,3)*"."
+                print(f'\r{self.next_merged_id}/{self.length} merged '+dots+(3-len(dots))*" ",file=sys.stderr,end="")
                 oldidx = self.next_merged_id
                 try:
                     if self.next_merged_id in self.ready_to_merged:
-                        logger.info(f'try merge {self.next_merged_id}  ....')
+                        logger.debug(f'try merge {self.next_merged_id}  ....')
                         self.ready_to_merged.remove(self.next_merged_id)
                         p = os.path.join(self.tempdir,self.tempname, str(self.next_merged_id))
 

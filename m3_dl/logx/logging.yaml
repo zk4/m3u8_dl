@@ -14,17 +14,17 @@ handlers:
         formatter: standard
 
 root:
-    level: DEBUG
+    level: INFO
     handlers: [console]
     propagate: no
 
 loggers:
     logx:
-        level: DEBUG
+        level: INFO
         handlers: [console]
         propagate: no
     m3_dl:
-        level: DEBUG
+        level: INFO
         handlers: [console]
         propagate: no
 
