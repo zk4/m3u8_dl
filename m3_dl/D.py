@@ -43,7 +43,7 @@ class D():
                 os.remove(destFile)
                 localSize=0
 
-            resp = requests.request("GET", url,timeout=10, headers=self.headers, stream=True, proxies=self.proxies, allow_redirects=True)
+            resp = requests.request("GET", url,timeout=10, headers=self.headers, stream=True, proxies=self.proxies, allow_redirects=True,verify=False)
             # if 300>resp.status_code >= 200:
             if resp.status_code>=200:
                 # logger.debug(f"stauts_code:{resp.status_code},destfile:{destFile}")

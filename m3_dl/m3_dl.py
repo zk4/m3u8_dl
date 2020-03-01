@@ -104,15 +104,17 @@ class m3u8_dl(object):
 
 
     def m3u8content(self,m3u8_url):
-        logger.debug(f"m3u8_url {m3u8_url}")
+        logger.info(f"m3u8_url {m3u8_url}")
         if m3u8_url.startswith("http"):
-            r = self.session.get(m3u8_url, timeout=10,headers=headers,proxies=self.proxies)
+            r = self.session.get(m3u8_url, timeout=10,headers=headers,proxies=self.proxies,verify=False)
             if r.ok:
                 ts_list = [urljoin(m3u8_url, n.strip()) for n in r.text.split('\n') if n and not n.startswith("#")]
                 if ts_list[0].endswith("m3u8"):
                     self.url = urljoin(m3u8_url,ts_list[0])
                     return self.m3u8content(self.url)
                 return r.text
+            else:
+                logger.debug(f'respnse:{r}')
         else:
             return Path(m3u8_url).read_text()
 
