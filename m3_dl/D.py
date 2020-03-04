@@ -5,9 +5,18 @@ from io import BytesIO
 import requests
 import traceback
 import logging
+import time
+import threading
+from .progress2 import  pb2
 logger = logging.getLogger(__name__)
 
 
+def userDefineVisual(  tag, nowValue, fullValue,extrainfo):
+    percent = float(nowValue) / fullValue
+    icons="🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚🕛✅"
+    icons_len=len(icons)
+    s="%3d%%" % int(round(percent * 100)) if fullValue != nowValue else "    "
+    return    f"{tag} {icons[nowValue%(icons_len-1)] if fullValue!=nowValue else icons[-1]} {s} {extrainfo}"
 
 class D():
 
@@ -51,6 +60,9 @@ class D():
             if resp.status_code>=200:
                 # logger.debug(f"stauts_code:{resp.status_code},destfile:{destFile}")
 
+                name = threading.current_thread().getName()
+                p = pb2.getSingleton()
+                start=time.time()
                 with open(destFile+".tmp", "ab") as f:
                     block_size = 1024
                     wrote = localSize
@@ -59,6 +71,8 @@ class D():
                         if data:
                             wrote = wrote + len(data)
                             f.write(data)
+                            p.update(name, wrote, webSize,str(int(wrote/(int(time.time()-start)+1)/1024)) +"kb/s",userDefineVisual)
+                    # p.update(name, 0, 0,"ok?",userDefineVisual)
                     if wrote != webSize:
                         logger.debug(f"ERROR, something went wrong wroteSize{wrote} != webSize{webSize}")
                         return False

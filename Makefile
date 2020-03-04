@@ -36,7 +36,7 @@ debug:
 	python3 -m m3_dl "https://doubanzyv1.tyswmp.com/2018/07/26/0vhyINWfXeWIkrJd/playlist.m3u8" -d -k -w -o "./a.mp4" 
 
 run:
-	python3 -m m3_dl "https://doubanzyv1.tyswmp.com/2018/07/26/0vhyINWfXeWIkrJd/playlist.m3u8" -k -w -o "./a.mp4" 
+	python3 -m m3_dl ./index-v1-a1.m3u8 -k -w -o "./a.mp4"  -p "socks5h://127.0.0.1:5992"
 
 stream:
 	python3 -m m3_dl "https://doubanzyv1.tyswmp.com/2018/07/26/0vhyINWfXeWIkrJd/playlist.m3u8" -k | mpv -

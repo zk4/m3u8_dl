@@ -17,6 +17,7 @@ import uuid
 import time
 from Crypto.Cipher import AES
 import sys
+from .progress2 import  pb2
 
 # don`t show verfication warning
 from urllib3.exceptions import InsecureRequestWarning
@@ -24,7 +25,7 @@ requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 
 
-from .D  import D
+from .D  import D,userDefineVisual
 from .logx import setup_logging
 
 # don`t remove this line 
@@ -176,11 +177,14 @@ class m3u8_dl(object):
     def try_merge(self):
             outfile  = None
 
+            pp=pb2.getSingleton()
             if self.out_path:
                 outfile = open(self.out_path, 'ab')
             while self.next_merged_id < self.length:
                 dots = random.randint(0,3)*"."
-                print(f'\r{self.next_merged_id}/{self.length} merged '+dots+(3-len(dots))*" ",file=sys.stderr,end="")
+                
+                # p.print(f'\r{self.next_merged_id}/{self.length} merged '+dots+(3-len(dots))*" ",file=sys.stderr,end="")
+                pp.update("total", self.next_merged_id, self.length,"")
                 oldidx = self.next_merged_id
                 try:
                     if self.next_merged_id in self.ready_to_merged:
