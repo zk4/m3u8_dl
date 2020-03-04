@@ -157,7 +157,7 @@ class m3u8_dl(object):
                 if url:
                     self.download(url,idx)
             except Exception as e:
-                logger.exception(e)
+                # logger.exception(e)
                 pass
 
     def run(self,threadcount):
