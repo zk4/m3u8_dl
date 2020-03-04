@@ -31,6 +31,28 @@ m3_dl  https://you.tube-kuyun.com/20200210/1144_623a1fb3/index.m3u8 | tee > ./a.
 
 # Full Usage 
 ```
+usage: m3_dl [-h] [-o OUT_PATH] [-p PROXY] [-t THREADCOUNT] [-d] [-w] [-s]
+             [--version] [-k]
+             url
+
+positional arguments:
+  url                   url
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o OUT_PATH, --out_path OUT_PATH
+                        output path (default: None)
+  -p PROXY, --proxy PROXY
+                        for example: socks5h://127.0.0.1:5992 (default: None)
+  -t THREADCOUNT, --threadcount THREADCOUNT
+                        thread count (default: 2)
+  -d, --debug           debug info (default: False)
+  -w, --overwrite       overwrite existed file (default: False)
+  -s, --stream          stream output for pipe (default: False)
+  --version             show program's version number and exit
+  -k, --ignore_certificate_verfication
+                        ignore certificate verfication, don`t use this option
+                        only if you know what you are doing! (default: False)
 ```
 
 
