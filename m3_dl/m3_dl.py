@@ -226,12 +226,6 @@ class m3u8_dl(object):
 def main(args):
     if args.debug:
         logger.setLevel("DEBUG")
-    if args.version:
-        mydir = os.path.dirname(os.path.abspath(__file__))
-
-        contents =Path(join(mydir,"..","version")).read_text()
-        print(contents)
-        return 
 
 
     logger.debug(f'args.out_path:{args.out_path}')
@@ -266,7 +260,9 @@ def createParse():
     parser.add_argument('-d', '--debug', help='debug info', default=False, action='store_true') 
     parser.add_argument('-w', '--overwrite', help='overwrite existed file', action='store_true')  
     parser.add_argument('-s',  '--stream',help='stream output for pipe', action='store_true')  
-    parser.add_argument('-v',  '--version',help='version', action='store_true')  
+    mydir = os.path.dirname(os.path.abspath(__file__))
+    version =Path(join(mydir,"..","version")).read_text()
+    parser.add_argument('--version', action='version', version=version)
     parser.add_argument('-k',  '--ignore_certificate_verfication',help='ignore certificate verfication, don`t use this option only if you know what you are doing!', action='store_true')  
 
 
