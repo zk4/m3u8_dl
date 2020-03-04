@@ -56,9 +56,7 @@ optional arguments:
 
 
 # TODO
-3. enable redownlowd
-5. make it mitm compatiable
+1. enable redownlowd
+1. make it mitm compatiable
 
-# Notes
-when feed binary to stdout, it will block ouput if stdout is full
 
