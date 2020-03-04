@@ -16,7 +16,7 @@ def userDefineVisual(  tag, nowValue, fullValue,extrainfo):
     icons="🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚🕛✅"
     icons_len=len(icons)
     s="%3d%%" % int(round(percent * 100)) if fullValue != nowValue else "    "
-    return    f"{tag} {icons[nowValue%(icons_len-1)] if fullValue!=nowValue else icons[-1]} {s} {extrainfo}"
+    return    f"{tag} {icons[nowValue%(icons_len-1)] if fullValue!=nowValue else icons[-1]} {s} {extrainfo.rjust(15)}"
 
 class D():
 
@@ -66,13 +66,11 @@ class D():
                 with open(destFile+".tmp", "ab") as f:
                     block_size = 1024
                     wrote = localSize
-                    # for data in tqdm(resp.iter_content(block_size), initial=wrote / block_size, total=webSize / block_size,unit='Mb', unit_scale=True):
                     for data in resp.iter_content(block_size):
                         if data:
                             wrote = wrote + len(data)
                             f.write(data)
-                            p.update(name, wrote, webSize,str(int(wrote/(int(time.time()-start)+1)/1024)) +"kb/s",userDefineVisual)
-                    # p.update(name, 0, 0,"ok?",userDefineVisual)
+                            p.update(name.rjust(13,' '), wrote, webSize,str(int(wrote/(int(time.time()-start)+1)/1024)) +"kb/s",userDefineVisual)
                     if wrote != webSize:
                         logger.debug(f"ERROR, something went wrong wroteSize{wrote} != webSize{webSize}")
                         return False

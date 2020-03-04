@@ -38,6 +38,13 @@ headers = {
     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36' ,
 }
 
+def userDefineVisual2(tag, nowValue, fullValue,extrainfo):
+    bar_length = 100
+    percent = float(nowValue) / fullValue
+    arrow = '#' * int(round(percent * bar_length) - 1) + '#'
+    spaces = ' ' * (bar_length - len(arrow))
+    return "{2} [{0}] {1}%".format(arrow + spaces, int(round(percent * 100)), tag)
+
 
 
 class m3u8_dl(object):
@@ -184,7 +191,8 @@ class m3u8_dl(object):
                 dots = random.randint(0,3)*"."
                 
                 # p.print(f'\r{self.next_merged_id}/{self.length} merged '+dots+(3-len(dots))*" ",file=sys.stderr,end="")
-                pp.update("total", self.next_merged_id, self.length,"")
+                pp.update("total merged ", self.next_merged_id, self.length,"",userDefineVisual2)
+                pp.update("block pending", self.next_merged_id+len(self.ready_to_merged), self.length,"",userDefineVisual2)
                 oldidx = self.next_merged_id
                 try:
                     if self.next_merged_id in self.ready_to_merged:
