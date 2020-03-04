@@ -4,6 +4,7 @@ This is a pipe compatiable tool for downloading m3u8.
 1. Fast download for m3u8.
 2. Auto decrpt the key.
 
+![](https://github.com/zk4/m3u8_dl/blob/master/demo.gif?raw=true)
 # Install
 since the name m3u8_dl is taken by other developer...
 
