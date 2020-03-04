@@ -259,7 +259,6 @@ def createParse():
     parser.add_argument('-t', '--threadcount',type=int,  help="thread count" ,default=2)
     parser.add_argument('-d', '--debug', help='debug info', default=False, action='store_true') 
     parser.add_argument('-w', '--overwrite', help='overwrite existed file', action='store_true')  
-    parser.add_argument('-s',  '--stream',help='stream output for pipe', action='store_true')  
     mydir = os.path.dirname(os.path.abspath(__file__))
     version =Path(join(mydir,"..","version")).read_text()
     parser.add_argument('--version', action='version', version=version)

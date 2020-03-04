@@ -48,7 +48,6 @@ optional arguments:
                         thread count (default: 2)
   -d, --debug           debug info (default: False)
   -w, --overwrite       overwrite existed file (default: False)
-  -s, --stream          stream output for pipe (default: False)
   --version             show program's version number and exit
   -k, --ignore_certificate_verfication
                         ignore certificate verfication, don`t use this option
