@@ -32,8 +32,8 @@ install: uninstall
 uninstall:
 	pip3 uninstall -y m3_dl
 
-debug:
-	python3 -m m3_dl "https://doubanzyv1.tyswmp.com/2018/07/26/0vhyINWfXeWIkrJd/playlist.m3u8" -d -k -w -o "./a.mp4" 
+dev:
+	python3 -m m3_dl "https://edu.51cto.com//center/player/play/m3u8?lesson_id=348911&id=345643&dp=high&type=course&lesson_type=course" -d -k | mpv - 
 
 run:
 	python3 -m m3_dl ./index-v1-a1.m3u8 -k -w -o "./a.mp4"  -p "socks5h://127.0.0.1:5993" -t 10

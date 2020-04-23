@@ -81,6 +81,7 @@ class m3u8_dl(object):
 
         self.cryptor = None
         if key:
+            logger.debug(f'key: {key}')
             self.cryptor = AES.new(key, AES.MODE_CBC, key)
 
 
@@ -99,8 +100,12 @@ class m3u8_dl(object):
                 if segments == "NONE":
                     return None
 
-                [method,uri]=segments.split(",")
-                method,uri = method.split('=')[1],uri.split('=')[1][1:-1]
+                logger.debug(f'segments:{segments}')
+                segments_splited = segments.split(",")
+                # [method,uri]=segments.split(",")
+                method = segments_splited[0]
+                uri  = segments_splited[1]
+                method,uri = method.split('=',1)[1],uri.split('=',1)[1][1:-1]
                 
                 logger.debug(f'request uri: {uri}')
 
