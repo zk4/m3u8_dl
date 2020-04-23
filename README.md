@@ -46,6 +46,7 @@ optional arguments:
                         output path (default: None)
   -p PROXY, --proxy PROXY
                         for example: socks5h://127.0.0.1:5992 (default: None)
+	-e KEY                custom decrypt key
   -t THREADCOUNT, --threadcount THREADCOUNT
                         thread count (default: 2)
   -d, --debug           debug info (default: False)
@@ -57,8 +58,14 @@ optional arguments:
 ```
 
 
+
 # TODO
 1. enable redownlowd
 1. make it mitm compatiable
 
 
+# QA
+*Why still can't I download m3u8 even though I got the correct m3u8 content? *
+Sometimes m3u8 file is not enough for m3_dl to donwload, cause the key is protected by user credential or whatever. 
+
+You need to get the key somehow. and tell m3_dl by -e option.

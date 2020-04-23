@@ -49,7 +49,7 @@ def userDefineVisual2(tag, nowValue, fullValue,extrainfo):
 
 class m3u8_dl(object):
 
-    def __init__(self,url,out_path,proxy,not_verify_ssl,debug):
+    def __init__(self,url,out_path,proxy,not_verify_ssl,custom_key,debug):
         pool_size           = 10
         self.proxies        = {"https":proxy,"http":proxy}
         self.verify         = not not_verify_ssl
@@ -76,8 +76,8 @@ class m3u8_dl(object):
 
             if self.out_path and os.path.isfile(self.out_path):
                 os.remove(self.out_path)
-        
-        key = self.readkey()
+
+        key = self.readkey() if not custom_key else custom_key
 
         self.cryptor = None
         if key:
@@ -255,6 +255,7 @@ def main(args):
             args.out_path,
             args.proxy,
             args.ignore_certificate_verfication,
+            args.key,
             args.debug
             )
 
@@ -273,6 +274,7 @@ def createParse():
     parser.add_argument("url",  help="url")
     parser.add_argument('-o', '--out_path',type=str,  help="output path, ex: ./a.mp4" )
     parser.add_argument('-p', '--proxy',type=str,  help="for example: socks5h://127.0.0.1:5992")
+    parser.add_argument('-e', '--key',type=str,  help="custom decrypt key")
     parser.add_argument('-t', '--threadcount',type=int,  help="thread count" ,default=2)
     parser.add_argument('-d', '--debug', help='debug info', default=False, action='store_true') 
     parser.add_argument('-w', '--overwrite', help='overwrite existed file', action='store_true')  
