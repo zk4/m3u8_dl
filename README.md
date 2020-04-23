@@ -10,8 +10,9 @@ since the name m3u8_dl is taken by other developer...
 
 short it to m3_dl
 ```
-pip install m3_dl
+pip3 install m3_dl
 ```
+> python version should be bigger than 3.7.1, my dev env is 3.7.1 
 
 # Usage 
 ```
