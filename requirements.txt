@@ -1,16 +1,7 @@
-<<<<<<< HEAD
-setuptools==40.6.3
 urllib3==1.25.8
 requests==2.23.0
 m3u8==0.5.4
 termcolor==1.1.0
 pycrypto==2.6.1
-=======
-requests==2.23.0
-m3u8==0.5.4
-termcolor==1.1.0
 setuptools==40.6.3
-pycrypto==2.6.1
-urllib3==1.25.8
->>>>>>> 926347b583bbd0274997dfa5f9f970d6b08bc71d
 PyYAML==5.3.1
