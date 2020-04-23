@@ -65,7 +65,8 @@ optional arguments:
 
 
 # QA
-*Why still can't I download m3u8 even though I got the correct m3u8 content? *
+**Why still can't I download m3u8 even though I got the correct m3u8 content?**
+
 Sometimes m3u8 file is not enough for m3_dl to donwload, cause the key is protected by user credential or whatever. 
 
 You need to get the key somehow. and tell m3_dl by -e option.
