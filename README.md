@@ -46,7 +46,8 @@ optional arguments:
                         output path (default: None)
   -p PROXY, --proxy PROXY
                         for example: socks5h://127.0.0.1:5992 (default: None)
-	-e KEY                custom decrypt key
+
+  -e KEY                custom decrypt key
   -t THREADCOUNT, --threadcount THREADCOUNT
                         thread count (default: 2)
   -d, --debug           debug info (default: False)
