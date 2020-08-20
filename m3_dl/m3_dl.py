@@ -147,7 +147,7 @@ class m3u8_dl(object):
     def download(self,url,i):
         try:
             d = D(proxies=self.proxies,headers=headers,verify=self.verify,debug=self.debug)
-            logger.debug(f'url:{url}')
+            # logger.debug(f'url:{url}')
             pathname = join(self.tempdir,self.tempname,str(i))
             # logger.debug(f'pathname:{pathname}')
             ret = d.download(url,pathname)
