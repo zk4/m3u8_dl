@@ -69,13 +69,11 @@ class m3u8_dl(object):
         self.tempname       = str(uuid.uuid4())
         self.debug          = debug
 
-        if self.out_path:
-            outdir              = dirname(out_path)
-            if outdir and not os.path.isdir(outdir):
-                os.makedirs(outdir)
-
-            if self.out_path and os.path.isfile(self.out_path):
-                os.remove(self.out_path)
+        out_dir = dirname(self.out_path)
+        if out_dir and not os.path.isdir(out_dir):  # 判断目录是否存在, 不存在则创建
+            os.makedirs(out_dir)
+        if os.path.isfile(self.out_path):  # 判断文件是否存在, 存在则删除
+            os.remove(self.out_path)
 
         key = self.readkey() if not custom_key else custom_key
 
@@ -244,6 +242,7 @@ def main(args):
     if args.debug:
         logger.setLevel("DEBUG")
 
+    args.out_path = args.out_path or './m3u8_out.mp4'  # 如果没有指定输出文件名, 则设置默认值
 
     logger.debug(f'args.out_path:{args.out_path}')
     if args.out_path and os.path.exists(args.out_path) and not args.overwrite:
