@@ -243,8 +243,8 @@ def main(args):
         logger.setLevel("DEBUG")
 
     args.out_path = args.out_path or './m3u8_out.mp4'  # 如果没有指定输出文件名, 则设置默认值
+    logger.info(f'The video will be downloaded to: {args.out_path}')
 
-    logger.debug(f'args.out_path:{args.out_path}')
     if args.out_path and os.path.exists(args.out_path) and not args.overwrite:
             logger.error(f'{args.out_path} exists! use -w if you want to overwrite it ')
             sys.exit(-1) 
