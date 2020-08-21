@@ -24,6 +24,9 @@ from urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 
+import os
+os.system('color')  # make Windows terminal to support output
+
 
 from .D  import D,userDefineVisual
 from .logx import setup_logging
