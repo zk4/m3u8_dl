@@ -1,37 +1,35 @@
 #coding: utf-8
 
-from concurrent.futures import ThreadPoolExecutor
-from os.path import join,basename,dirname
-from pathlib import Path
-from urllib.parse import urljoin
 import argparse
 import logging
 import os
-import random
 import queue
-import requests
-import subprocess
-import threading
-import tempfile
-import uuid
-import time
-from Crypto.Cipher import AES
+import random
 import sys
-from .progress2 import  pb2
-from termcolor import colored, cprint
+import tempfile
+import threading
+import time
+import uuid
+from os.path import join, dirname
+from pathlib import Path
+from urllib.parse import urljoin
 
+import requests
+from Crypto.Cipher import AES
+from termcolor import cprint
 # don`t show verfication warning
 from urllib3.exceptions import InsecureRequestWarning
+
+from .D import D
+from .logx import setup_logging
+from .progress2 import pb2
+
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 
-import os
 if os.name == 'nt':
     os.system('color')  # make Windows terminal to support log output
 
-
-from .D  import D,userDefineVisual
-from .logx import setup_logging
 
 # don`t remove this line 
 setup_logging()
@@ -43,6 +41,7 @@ headers = {
     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36' ,
 }
 
+
 def userDefineVisual2(tag, nowValue, fullValue,extrainfo):
     bar_length = 40
     percent = float(nowValue) / fullValue
@@ -51,9 +50,7 @@ def userDefineVisual2(tag, nowValue, fullValue,extrainfo):
     return "{2} [{0}] {1}%".format(arrow + spaces, int(round(percent * 100)), tag)
 
 
-
 class m3u8_dl(object):
-
     def __init__(self,url,out_path,proxy,not_verify_ssl,custom_key,debug):
         pool_size           = 10
         self.proxies        = {"https":proxy,"http":proxy}
@@ -87,7 +84,6 @@ class m3u8_dl(object):
             logger.debug(f'key: {key}')
             self.cryptor = AES.new(key, AES.MODE_CBC, key)
 
-
     def decode(self, content):
         if self.cryptor:
             return self.cryptor.decrypt(content)
@@ -120,7 +116,6 @@ class m3u8_dl(object):
                     return  r.content
                 logger.fatal(f"Can`t download key url: {uri}, maybe you should use proxy")
                 sys.exit(-1)
-                
 
     def _get_http_session(self, pool_connections, pool_maxsize, max_retries):
         session = requests.Session()
@@ -128,7 +123,6 @@ class m3u8_dl(object):
         session.mount('http://', adapter)
         session.mount('https://', adapter)
         return session
-
 
     def m3u8content(self,m3u8_url):
         logger.debug(f"m3u8_url {m3u8_url}")
@@ -165,7 +159,6 @@ class m3u8_dl(object):
             if self.debug:
                 logger.exception(e)
 
-
     def target(self):
         while self.next_merged_id < self.length:
             try:
@@ -187,7 +180,6 @@ class m3u8_dl(object):
 
             for pair in self.ts_list_pair:
                 self.downloadQ.put((pair[1],pair[0]))
-
 
     def try_merge(self):
             outfile  = None
@@ -248,11 +240,11 @@ def main(args):
         logger.setLevel("DEBUG")
 
     args.out_path = args.out_path or './m3u8_out.mp4'  # 如果没有指定输出文件名, 则设置默认值
-    logger.info(f'The video will be downloaded to: {args.out_path}')
+    cprint(f'The video will be downloaded to: {args.out_path}', 'green')
 
     if args.out_path and os.path.exists(args.out_path) and not args.overwrite:
-            logger.error(f'{args.out_path} exists! use -w if you want to overwrite it ')
-            sys.exit(-1) 
+        logger.error(f'{args.out_path} exists! use -w if you want to overwrite it ')
+        sys.exit(-1)
 
     m = m3u8_dl(
             args.url,
@@ -264,8 +256,9 @@ def main(args):
             )
 
     # must ensure 1 for merged thread
-    threadcount = args.threadcount + 1
-    m.run(threadcount)
+    thread_count = args.threadcount + 1
+    m.run(thread_count)
+
 
 def entry_point():
     parser = createParse()
@@ -285,7 +278,5 @@ def createParse():
     mydir = os.path.dirname(os.path.abspath(__file__))
     version =Path(join(mydir,"..","version")).read_text()
     parser.add_argument('--version', action='version', version=version)
-    parser.add_argument('-k',  '--ignore_certificate_verfication',help='ignore certificate verfication, don`t use this option only if you know what you are doing!', action='store_true')  
-
-
+    parser.add_argument('-k',  '--ignore_certificate_verfication',help='ignore certificate verfication, don`t use this option only if you know what you are doing!', action='store_true')
     return parser
