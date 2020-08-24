@@ -18,6 +18,7 @@ import time
 from Crypto.Cipher import AES
 import sys
 from .progress2 import  pb2
+from termcolor import colored, cprint
 
 # don`t show verfication warning
 from urllib3.exceptions import InsecureRequestWarning
@@ -25,7 +26,8 @@ requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 
 import os
-os.system('color')  # make Windows terminal to support output
+if os.name == 'nt':
+    os.system('color')  # make Windows terminal to support log output
 
 
 from .D  import D,userDefineVisual
@@ -42,7 +44,7 @@ headers = {
 }
 
 def userDefineVisual2(tag, nowValue, fullValue,extrainfo):
-    bar_length = 100
+    bar_length = 40
     percent = float(nowValue) / fullValue
     arrow = '#' * int(round(percent * bar_length) - 1) + '#'
     spaces = ' ' * (bar_length - len(arrow))

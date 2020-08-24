@@ -63,6 +63,7 @@ optional arguments:
 # TODO
 1. enable redownlowd
 1. make it mitm compatiable
+1. enable download from a list of url
 
 
 # QA
