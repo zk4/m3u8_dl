@@ -238,7 +238,6 @@ def main(args):
     if args.debug:
         logger.setLevel("DEBUG")
 
-    args.out_path = args.out_path or './m3u8_out.mp4'  # 如果没有指定输出文件名, 则设置默认值
     cprint(f'The video will be downloaded to: {args.out_path}', 'green')
 
     if args.out_path and os.path.exists(args.out_path) and not args.overwrite:
@@ -268,16 +267,16 @@ def entry_point():
 def createParse():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="")
     parser.add_argument("url", help="url")
-    parser.add_argument('-o', '--out_path', type=str, help="output path, ex: ./a.mp4")
+    parser.add_argument('-o', '--out_path', type=str, help="output path, ex: ./a.mp4", default='./m3u8_out.mp4')
     parser.add_argument('-p', '--proxy', type=str, help="for example: socks5h://127.0.0.1:5992")
     parser.add_argument('-e', '--key', type=str, help="custom decrypt key")
     parser.add_argument('-t', '--threadcount', type=int, help="thread count", default=2)
     parser.add_argument('-d', '--debug', help='debug info', default=False, action='store_true')
     parser.add_argument('-w', '--overwrite', help='overwrite existed file', action='store_true')
-    mydir = os.path.dirname(os.path.abspath(__file__))
-    version = Path(join(mydir, "..", "version")).read_text()
+    version_file = os.path.dirname(os.path.abspath(__file__))
+    version = Path(join(version_file, "..", "version")).read_text()
     parser.add_argument('--version', action='version', version=version)
-    parser.add_argument('-k', '--ignore_certificate_verfication',
-                        help='ignore certificate verfication, don`t use this option only if you know what you are doing!',
+    parser.add_argument('-k', '--ignore_certificate_verification',
+                        help='ignore certificate verification, don`t use this option only if you know what you are doing!',
                         action='store_true')
     return parser
