@@ -170,12 +170,9 @@ class m3u8_dl(object):
 
     def run(self, threadcount):
         if self.ts_list_pair:
-
             for i in range(threadcount):
                 threading.Thread(target=self.target).start()
-
             threading.Thread(target=self.try_merge).start()
-
             for pair in self.ts_list_pair:
                 self.downloadQ.put((pair[1], pair[0]))
 
