@@ -245,7 +245,7 @@ def main(args):
         args.url,
         args.out_path,
         args.proxy,
-        args.ignore_certificate_verfication,
+        args.ignore_certificate_verification,
         args.key,
         args.debug
     )
