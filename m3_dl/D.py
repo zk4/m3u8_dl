@@ -14,6 +14,8 @@ logger = logging.getLogger(__name__)
 def userDefineVisual(  tag, nowValue, fullValue,extrainfo):
     percent = float(nowValue) / fullValue
     icons="🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚🕛✅"
+    if os.name == 'nt':
+        icons = "             "
     icons_len=len(icons)
     s="%3d%%" % int(round(percent * 100)) if fullValue != nowValue else "    "
     return    f"{tag} {icons[nowValue%(icons_len-1)] if fullValue!=nowValue else icons[-1]} {s} {extrainfo.rjust(15)}"
