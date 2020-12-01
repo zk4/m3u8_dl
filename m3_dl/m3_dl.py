@@ -10,6 +10,7 @@ import os
 import random
 import queue
 import requests
+from requests.auth import HTTPBasicAuth
 import subprocess
 import threading
 import tempfile
@@ -49,14 +50,14 @@ def userDefineVisual2(tag, nowValue, fullValue,extrainfo):
 
 class m3u8_dl(object):
 
-    def __init__(self,url,out_path,proxy,not_verify_ssl,custom_key,debug):
+    def __init__(self,url,out_path,proxy,auth,not_verify_ssl,custom_key,debug):
         pool_size           = 10
         self.proxies        = {"https":proxy,"http":proxy}
         self.verify         = not not_verify_ssl
         self.url            = url
         self.is_http_url    = url.startswith("http")
         self.out_path       = out_path
-        self.session        = self._get_http_session(pool_size, pool_size, 5)
+        self.session        = self._get_http_session(pool_size, pool_size, 5, auth)
         self.m3u8_content   = self.m3u8content(url)
         self.ts_list        = [urljoin(self.url, n.strip()) for n in self.m3u8_content.split('\n') if n and not n.startswith("#")]
         self.length         = len(self.ts_list)
@@ -119,11 +120,16 @@ class m3u8_dl(object):
                 sys.exit(-1)
                 
 
-    def _get_http_session(self, pool_connections, pool_maxsize, max_retries):
+    def _get_http_session(self, pool_connections, pool_maxsize, max_retries, auth=None):
         session = requests.Session()
-        adapter = requests.adapters.HTTPAdapter(pool_connections=pool_connections, pool_maxsize=pool_maxsize, max_retries=max_retries) 
+        adapter = requests.adapters.HTTPAdapter(pool_connections=pool_connections, pool_maxsize=pool_maxsize, max_retries=max_retries)
         session.mount('http://', adapter)
         session.mount('https://', adapter)
+
+        if auth:
+            username, password = auth
+            session.auth = HTTPBasicAuth(username, password)
+
         return session
 
 
@@ -146,7 +152,7 @@ class m3u8_dl(object):
 
     def download(self,url,i):
         try:
-            d = D(proxies=self.proxies,headers=headers,verify=self.verify,debug=self.debug)
+            d = D(proxies=self.proxies,auth=self.session.auth,headers=headers,verify=self.verify,debug=self.debug)
             # logger.debug(f'url:{url}')
             pathname = join(self.tempdir,self.tempname,str(i))
             # logger.debug(f'pathname:{pathname}')
@@ -254,6 +260,7 @@ def main(args):
             args.url,
             args.out_path,
             args.proxy,
+            args.auth.split(':', 1) if args.auth else None,
             args.ignore_certificate_verfication,
             args.key,
             args.debug
@@ -274,6 +281,7 @@ def createParse():
     parser.add_argument("url",  help="url")
     parser.add_argument('-o', '--out_path',type=str,  help="output path, ex: ./a.mp4" )
     parser.add_argument('-p', '--proxy',type=str,  help="for example: socks5h://127.0.0.1:5992")
+    parser.add_argument('-a', '--auth',type=str,  help="for example: username:password")
     parser.add_argument('-e', '--key',type=str,  help="custom decrypt key")
     parser.add_argument('-t', '--threadcount',type=int,  help="thread count" ,default=2)
     parser.add_argument('-d', '--debug', help='debug info', default=False, action='store_true') 
