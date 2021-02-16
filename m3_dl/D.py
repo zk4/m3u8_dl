@@ -20,9 +20,10 @@ def userDefineVisual(  tag, nowValue, fullValue,extrainfo):
 
 class D():
 
-    def __init__(self, cookie    = None, proxies = None,headers = None,verify = True,debug = False,ignore_local = False,retry_times = 9999999999) -> None:
+    def __init__(self, cookie    = None, proxies = None, auth = None,headers = None,verify = True,debug = False,ignore_local = False,retry_times = 9999999999) -> None:
         self.cookie              = cookie
         self.proxies             = proxies
+        self.auth                = auth
         self.headers             = headers
         self.ignore_local        = ignore_local
         self.retry_times         = retry_times
@@ -55,7 +56,7 @@ class D():
                 os.remove(destFile)
                 localSize=0
 
-            resp = requests.request("GET", url,timeout=10, headers=self.headers, stream=True, proxies=self.proxies, allow_redirects=True,verify=self.verify)
+            resp = requests.request("GET", url,timeout=10, headers=self.headers, stream=True, proxies=self.proxies, allow_redirects=True,verify=self.verify, auth=self.auth)
             # if 300>resp.status_code >= 200:
             if resp.status_code>=200:
                 # logger.debug(f"stauts_code:{resp.status_code},destfile:{destFile}")
@@ -91,7 +92,7 @@ class D():
         if self.cookie:
             self.headers['cookie']=self.cookie
 
-        rr = requests.get(url, headers=self.headers, stream=True, proxies=self.proxies, verify=self.verify)
+        rr = requests.get(url, headers=self.headers, stream=True, proxies=self.proxies, verify=self.verify, auth=self.auth)
         file_size = int(rr.headers['Content-Length'])
 
         if 300>rr.status_code>=200:
