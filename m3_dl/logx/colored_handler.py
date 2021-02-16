@@ -14,12 +14,11 @@ from termcolor import colored
 
 class ColoredHandler(Handler):
     def emit(self, record):
-        if record.levelname  == "INFO":
-            record.msg=colored( record.getMessage(),'green')
-        if record.levelname  == "ERROR":
-            record.msg=colored(record.getMessage(),'cyan')
-        if record.levelname  == "CRITICAL":
-            record.msg=colored( record.getMessage(),'red')
-        if record.levelname  == "WARNING":
-            record.msg=colored( record.getMessage(),'blue')
-
+        if record.levelname == "INFO":
+            record.msg = colored(record.getMessage(), "green")
+        if record.levelname == "ERROR":
+            record.msg = colored(record.getMessage(), "cyan")
+        if record.levelname == "CRITICAL":
+            record.msg = colored(record.getMessage(), "red")
+        if record.levelname == "WARNING":
+            record.msg = colored(record.getMessage(), "blue")
