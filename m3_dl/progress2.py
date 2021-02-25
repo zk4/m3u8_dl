@@ -1,4 +1,4 @@
-#coding: utf-8
+# coding: utf-8
 # Author:zk   2018.7.19
 import collections
 import time
@@ -6,6 +6,7 @@ import sys
 import threading
 from threading import Thread
 import logging
+
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARN)
 
@@ -16,19 +17,20 @@ class pb2:
     __dirty = False
     __instance = None
     __currentIconIdx = 0
-    __istty=sys.stdout.isatty()
+    __istty = sys.stdout.isatty()
     if not __istty:
-        logger.warning("WARNNING:pb2 not in tty! only support one line. multi line not supported")
+        logger.warning(
+            "WARNNING:pb2 not in tty! only support one line. multi line not supported"
+        )
 
     def up(self):
         if self.__istty:
-            sys.stdout.write('\x1b[1A')
+            sys.stdout.write("\x1b[1A")
             sys.stdout.flush()
-
 
     def down(self):
         if self.__istty:
-            sys.stdout.write('\n')
+            sys.stdout.write("\n")
             sys.stdout.flush()
 
     @classmethod
@@ -48,18 +50,24 @@ class pb2:
         t.daemon = True
         t.start()
 
-    def update(self, tag, nowValue, fullValue,extrainfo=None, customVisualbar=None):
+    def update(self, tag, nowValue, fullValue, extrainfo=None, customVisualbar=None):
         with self.__lock:
-            self.__od[tag] = self.customVisualbar(tag, nowValue, fullValue,extrainfo) if customVisualbar is None else customVisualbar(tag, nowValue, fullValue,extrainfo)
+            self.__od[tag] = (
+                self.customVisualbar(tag, nowValue, fullValue, extrainfo)
+                if customVisualbar is None
+                else customVisualbar(tag, nowValue, fullValue, extrainfo)
+            )
 
             self.__dirty = True
 
-    def customVisualbar(self, tag, nowValue, fullValue,extrainfo=""):
+    def customVisualbar(self, tag, nowValue, fullValue, extrainfo=""):
         bar_length = 100
         percent = float(nowValue) / fullValue
-        arrow = '-' * int(round(percent * bar_length) - 1) + '>'
-        spaces = ' ' * (bar_length - len(arrow))
-        return "{2} [{0}] {1}%  {3}".format(arrow + spaces, int(round(percent * 100)), tag,extrainfo)
+        arrow = "-" * int(round(percent * bar_length) - 1) + ">"
+        spaces = " " * (bar_length - len(arrow))
+        return "{2} [{0}] {1}%  {3}".format(
+            arrow + spaces, int(round(percent * 100)), tag, extrainfo
+        )
 
     # print after bar
     def print(self, str):
@@ -101,7 +109,7 @@ class pb2:
             if self.__istty:
                 print(v)
             else:
-                print("\r"+v,end='')
+                print("\r" + v, end="")
         for i in range(len(self.__od)):
             self.up()
         self.__dirty = False
