@@ -1,4 +1,4 @@
-urllib3==1.25.8
+urllib3==1.26.5
 requests==2.23.0
 m3u8==0.5.4
 termcolor==1.1.0
