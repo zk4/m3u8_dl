@@ -188,6 +188,7 @@ class m3u8_dl(object):
                 self.downloadQ.put((i, url))
 
         except Exception as e:
+            self.downloadQ.put((i, url))
             if self.debug:
                 logger.exception(e)
 
