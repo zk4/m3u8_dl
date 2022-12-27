@@ -3,5 +3,5 @@ requests==2.23.0
 m3u8==0.5.4
 termcolor==1.1.0
 pycryptodome==3.9.8
-setuptools==40.6.3
+setuptools==65.5.1
 PyYAML==5.3.1
